@@ -60,7 +60,7 @@ def test_run_instruction_part_two():
 
     crates = input_crates
     for i, instruction in enumerate(input_instructions):
-        crates = run_instruction(crates, *instruction, part_two=True)
+        crates = run_instruction(crates, *instruction, is_part_two=True)
         assert crates == expected[i]
 
 
