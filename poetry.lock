@@ -1,6 +1,6 @@
 [[package]]
 name = "aoc-helper"
-version = "1.6.8"
+version = "1.6.15"
 description = "A helper package for Advent of Code"
 category = "main"
 optional = false
@@ -44,7 +44,7 @@ python-versions = ">=3.5"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy (>=0.900,!=0.940)", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "zope.interface"]
-tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
+tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "beautifulsoup4"
@@ -99,7 +99,7 @@ optional = false
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode-backport = ["unicodedata2"]
+unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -187,9 +187,9 @@ python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
-pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
-requirements-deprecated-finder = ["pip-api", "pipreqs"]
+requirements_deprecated_finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "lazy-object-proxy"
@@ -399,7 +399,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "six"
@@ -488,8 +488,8 @@ content-hash = "f31993f836966825f3d409e5b2320cc17f18e0d4e38b28ad3005cbacab5ce947
 
 [metadata.files]
 aoc-helper = [
-    {file = "aoc_helper-1.6.8-py3-none-any.whl", hash = "sha256:9d3ce74ffb1c71b32ed462b0389791689442740633b8975f64cab456f4aa340d"},
-    {file = "aoc_helper-1.6.8.tar.gz", hash = "sha256:2702a7d3f7a67b3cfdbea9aa8501e52956ac9a04edab10e8ab57c6e0f22dbe59"},
+    {file = "aoc_helper-1.6.15-py3-none-any.whl", hash = "sha256:d6a26355b794769d1988e6624fac85123517eff1fd0786f5872e6b3adb51d844"},
+    {file = "aoc_helper-1.6.15.tar.gz", hash = "sha256:88d7f69432469acd96cdff36acffc0e74f7841da467eb718990c21338a579a01"},
 ]
 astroid = [
     {file = "astroid-2.12.13-py3-none-any.whl", hash = "sha256:10e0ad5f7b79c435179d0d0f0df69998c4eef4597534aae44910db060baeb907"},
