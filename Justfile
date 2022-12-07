@@ -1,7 +1,7 @@
-test:
+watch:
 	ptw -- '--testmon'
 
-test_all:
+test:
 	pytest
 
 format:
