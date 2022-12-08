@@ -47,15 +47,21 @@ def test_visibility_from_four_directions():
     grid = parse_raw(example)
 
     test_cases = [
+        # top-left 5 is visible from the left and top.
         [
             (1, 1),
             [True, False, False, True],
-        ],  # top-left 5 is visible from the left and top.
+        ],
+        # top-middle 5 is visible from the top and right.
         [
             (2, 1),
             [True, True, False, False],
-        ],  # top-middle 5 is visible from the top and right.
-        [(0, 0), [True, False, False, True]],  # top-left 3 is visible from two edges.
+        ],
+        # top-left 3 is visible from two edges.
+        [
+            (0, 0),
+            [True, False, False, True],
+        ],
     ]
 
     for coord, expected in test_cases:
