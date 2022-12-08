@@ -1,4 +1,6 @@
-[MASTER]
+[MAIN]
 disable=I,R,C,W
 recursive=yes
 max-line-length=88
+
+init-hook='import sys; sys.path.append('.')'

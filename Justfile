@@ -6,3 +6,6 @@ test:
 
 format:
 	poetry run black .
+
+lint:
+	poetry run pylint solutions tests
