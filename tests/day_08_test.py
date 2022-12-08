@@ -5,7 +5,7 @@ from solutions.day_08 import (
     parse_raw,
     part_one,
     part_two,
-    see_from_four_directions,
+    trees_in_four_directions,
     visibility_from_four_directions,
     is_visible,
     count_trees_saw,
@@ -34,12 +34,12 @@ def test_parse_raw():
     assert (actual == expected).all()
 
 
-def test_see_from_four_directions():
+def test_trees_in_four_directions():
     grid = parse_raw(example)
 
     coord = (2, 1)
     expected = [[3], [1, 2], [3, 5, 3], [5, 2]]
-    actual = see_from_four_directions(grid, *coord)
+    actual = trees_in_four_directions(grid, *coord)
     assert actual == expected
 
 

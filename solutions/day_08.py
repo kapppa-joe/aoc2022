@@ -7,7 +7,7 @@ def parse_raw(raw: str) -> np.ndarray:
     return np.array([[int(digit) for digit in line] for line in raw.split("\n")])
 
 
-def see_from_four_directions(grid: np.ndarray, x: int, y: int) -> list[list[int]]:
+def trees_in_four_directions(grid: np.ndarray, x: int, y: int) -> list[list[int]]:
     return [
         list(arr)
         for arr in [
@@ -21,7 +21,7 @@ def see_from_four_directions(grid: np.ndarray, x: int, y: int) -> list[list[int]
 
 def visibility_from_four_directions(grid: np.ndarray, x: int, y: int) -> list[bool]:
     self_height = grid[y][x]
-    return [all(trees < self_height) for trees in see_from_four_directions(grid, x, y)]
+    return [all(trees < self_height) for trees in trees_in_four_directions(grid, x, y)]
 
 
 def is_visible(grid: np.ndarray, x: int, y: int) -> bool:
@@ -32,7 +32,7 @@ def count_trees_saw(grid: np.ndarray, x: int, y: int) -> list[int]:
     self_height = grid[y][x]
     counts = []
 
-    for trees in see_from_four_directions(grid, x, y):
+    for trees in trees_in_four_directions(grid, x, y):
         not_blocked = list(itertools.takewhile(lambda tree: tree < self_height, trees))
         blocked = itertools.dropwhile(lambda tree: tree < self_height, trees)
         seen = sum(1 for _ in not_blocked)

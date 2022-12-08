@@ -1,8 +1,8 @@
 watch:
-	ptw -- '--testmon'
+	poetry run ptw -- '--testmon'
 
 test:
-	pytest
+	poetry run pytest
 
 format:
-	black .
+	poetry run black .
