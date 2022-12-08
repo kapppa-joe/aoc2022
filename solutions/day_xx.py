@@ -15,7 +15,7 @@ def part_two(data):
 
 if __name__ == "__main__":
 
-    day = ___
+    day = None
 
     raw_data = aoc_helper.fetch(day, 2022)
     parsed_data = parse_raw(raw_data)
