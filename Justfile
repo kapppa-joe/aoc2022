@@ -1,5 +1,5 @@
 watch:
-	poetry run ptw -- '--testmon'
+	poetry run ptw -- -- --testmon
 
 test:
 	poetry run pytest
