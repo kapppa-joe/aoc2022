@@ -1,12 +1,13 @@
-from typing import Callable
+from typing import Callable, TypeAlias
 import re
 
 import aoc_helper
 
+ManagebleItem: TypeAlias = list[int]
+
 
 class Monkey:
     _all_monkeys = []
-    part_two = False
 
     def __init__(
         self,
@@ -15,33 +16,33 @@ class Monkey:
         test_divisor: int,
         next_monkey_true: int,
         next_monkey_false: int,
-        part_two: bool = False
     ):
         self.items = starting_items
         self.operation = operation
         self.test_divisor = test_divisor
         self.next_monkeys = [next_monkey_false, next_monkey_true]
         self.inspect_item_counts = 0
+        self.index = len(self.__class__._all_monkeys)
 
-        Monkey._all_monkeys.append(self)
+        self.__class__._all_monkeys.append(self)
 
     def play(self):
         for item in self.items:
             item_worry_level = self.inspect_item(item)
-            if not Monkey.part_two:
-                item_worry_level = item_worry_level // 3
-            test_result = item_worry_level % self.test_divisor == 0
-            next_monkey = self.next_monkeys[test_result]
-            Monkey.get_monkey(next_monkey).receive_item(item_worry_level)
+            next_monkey = self.determine_next_monkey(item_worry_level)
+            self.__class__.get_monkey(next_monkey).receive_item(item_worry_level)
         self.items = []
-
 
     def receive_item(self, item: int):
         self.items.append(item)
 
     def inspect_item(self, item: int) -> int:
         self.inspect_item_counts += 1
-        return self.operation(item)
+        return self.operation(item) // 3
+
+    def determine_next_monkey(self, item_worry_level: int) -> int:
+        test_result = item_worry_level % self.test_divisor == 0
+        return self.next_monkeys[test_result]
 
     @classmethod
     def get_monkey(cls, index: int) -> "Monkey":
@@ -55,8 +56,51 @@ class Monkey:
         for monkey in cls._all_monkeys:
             monkey.play()
 
+    @classmethod
+    def monkey_business_index(cls) -> int:
+        most_annoying_monkey, second_annoying_monkey, *rest = sorted(
+            cls._all_monkeys,
+            key=lambda monkey: monkey.inspect_item_counts,
+            reverse=True,
+        )
+        return (
+            most_annoying_monkey.inspect_item_counts
+            * second_annoying_monkey.inspect_item_counts
+        )
 
-def create_monkey(lines: list[str]) -> Monkey:
+
+class MoreWorryingMonkey(Monkey):
+    _all_monkeys = []
+    _monkey_divisors = []
+
+    @classmethod
+    def make_items_manageable(cls):
+        cls._monkey_divisors = [monkey.test_divisor for monkey in cls._all_monkeys]
+        for monkey in cls._all_monkeys:
+            monkey.items = [
+                [item % d for d in cls._monkey_divisors] for item in monkey.items
+            ]
+
+    @property
+    def monkey_divisors(self):
+        return self.__class__._monkey_divisors
+
+    def inspect_item(self, item: ManagebleItem) -> int:
+        if not isinstance(item, list):
+            raise RuntimeError("Item is not manageable yet. Need to check again")
+
+        self.inspect_item_counts += 1
+        return [
+            self.operation(prev_modulus) % self.monkey_divisors[i]
+            for i, prev_modulus in enumerate(item)
+        ]
+
+    def determine_next_monkey(self, item_worry_level: ManagebleItem) -> int:
+        test_result = item_worry_level[self.index] == 0
+        return self.next_monkeys[test_result]
+
+
+def create_monkey(lines: list[str], part_two=False) -> Monkey:
     starting_items = [int(item) for item in re.findall(r"\d+", lines[1])]
 
     operation_raw = lines[2].replace("Operation: new = ", "")
@@ -67,15 +111,21 @@ def create_monkey(lines: list[str]) -> Monkey:
         int(re.search(r"\d+", line)[0]) for line in lines[3:6]
     ]
 
-    return Monkey(starting_items, operation, test_divisor, next_monkey_true, next_monkey_false)
+    monkey_type = MoreWorryingMonkey if part_two else Monkey
+    return monkey_type(
+        starting_items, operation, test_divisor, next_monkey_true, next_monkey_false
+    )
 
-def parse_raw(raw: str) -> list[Monkey]:
+
+def parse_raw(raw: str, part_two=False) -> list[Monkey]:
     monkey_blocks = raw.split("\n\n")
     monkeys = []
     for block in monkey_blocks:
-        monkey = create_monkey(lines = block.split('\n')) 
+        monkey = create_monkey(lines=block.split("\n"), part_two=part_two)
         monkeys.append(monkey)
 
+    if part_two:
+        MoreWorryingMonkey.make_items_manageable()
     return monkeys
 
 
@@ -83,14 +133,14 @@ def part_one(monkeys: list[Monkey]) -> int:
     for _ in range(20):
         Monkey.all_monkeys_take_turn()
 
-    most_annoying_monkey, second_annoying_monkey, *rest = sorted(monkeys, key=lambda monkey: monkey.inspect_item_counts, reverse=True)
-    return most_annoying_monkey.inspect_item_counts * second_annoying_monkey.inspect_item_counts
+    return Monkey.monkey_business_index()
+
 
 def part_two(monkeys: list[Monkey]) -> int:
-    Monkey.part_two = True
-    for _ in range(1000):
-        Monkey.all_monkeys_take_turn()
-    print(monkey.items for monkey in monkeys)
+    for _ in range(10000):
+        MoreWorryingMonkey.all_monkeys_take_turn()
+
+    return MoreWorryingMonkey.monkey_business_index()
 
 
 if __name__ == "__main__":
@@ -98,7 +148,9 @@ if __name__ == "__main__":
     day = 11
 
     raw_data = aoc_helper.fetch(day, 2022)
-    parsed_data = parse_raw(raw_data)
+    monkeys = parse_raw(raw_data)
 
-    print(f"part one solution: {part_one(parsed_data)}")
-    print(f"part two solution: {part_two(parsed_data)}")
+    print(f"part one solution: {part_one(monkeys)}")
+
+    monkeys_part_two = parse_raw(raw_data, part_two=True)
+    print(f"part two solution: {part_two(monkeys_part_two)}")
