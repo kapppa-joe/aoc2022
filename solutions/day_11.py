@@ -69,7 +69,7 @@ class Monkey:
         )
 
 
-class MoreWorryingMonkey(Monkey):
+class MoreAnnoyingMonkey(Monkey):
     _all_monkeys = []
     _monkey_divisors = []
 
@@ -111,7 +111,7 @@ def create_monkey(lines: list[str], part_two=False) -> Monkey:
         int(re.search(r"\d+", line)[0]) for line in lines[3:6]
     ]
 
-    monkey_type = MoreWorryingMonkey if part_two else Monkey
+    monkey_type = MoreAnnoyingMonkey if part_two else Monkey
     return monkey_type(
         starting_items, operation, test_divisor, next_monkey_true, next_monkey_false
     )
@@ -125,7 +125,7 @@ def parse_raw(raw: str, part_two=False) -> list[Monkey]:
         monkeys.append(monkey)
 
     if part_two:
-        MoreWorryingMonkey.make_items_manageable()
+        MoreAnnoyingMonkey.make_items_manageable()
     return monkeys
 
 
@@ -138,9 +138,9 @@ def part_one(monkeys: list[Monkey]) -> int:
 
 def part_two(monkeys: list[Monkey]) -> int:
     for _ in range(10000):
-        MoreWorryingMonkey.all_monkeys_take_turn()
+        MoreAnnoyingMonkey.all_monkeys_take_turn()
 
-    return MoreWorryingMonkey.monkey_business_index()
+    return MoreAnnoyingMonkey.monkey_business_index()
 
 
 if __name__ == "__main__":

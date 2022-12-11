@@ -1,12 +1,12 @@
 import pytest
-from solutions.day_11 import Monkey, parse_raw, part_one, MoreWorryingMonkey, part_two
+from solutions.day_11 import Monkey, parse_raw, part_one, MoreAnnoyingMonkey, part_two
 
 
 @pytest.fixture(autouse=True)
 def reset_monkeys():
     yield
     Monkey._all_monkeys = []
-    MoreWorryingMonkey._all_monkeys = []
+    MoreAnnoyingMonkey._all_monkeys = []
 
 
 example = """Monkey 0:
@@ -137,13 +137,13 @@ def test_monkey_index(monkeys):
 
 
 def generate_part_two_monkeys():
-    MoreWorryingMonkey._all_monkeys = []
+    MoreAnnoyingMonkey._all_monkeys = []
     return parse_raw(example, part_two=True)
 
 
 def test_part_two_play_round():
     monkeys = generate_part_two_monkeys()
-    assert isinstance(monkeys[0], MoreWorryingMonkey)
+    assert isinstance(monkeys[0], MoreAnnoyingMonkey)
 
     monkeys[0].play()
 
@@ -172,7 +172,7 @@ def test_part_two_inspect_counts():
     for rounds_count, expected in test_cases:
         monkeys = generate_part_two_monkeys()
         for _ in range(rounds_count):
-            MoreWorryingMonkey.all_monkeys_take_turn()
+            MoreAnnoyingMonkey.all_monkeys_take_turn()
 
         actual = [monkey.inspect_item_counts for monkey in monkeys]
 
