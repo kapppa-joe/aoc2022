@@ -72,7 +72,7 @@ def find_shortest_path_length(
     visited = set()
 
     while candidates:
-        curr = min(candidates, key=candidates.get)
+        curr = next(coord for coord in candidates)
         curr_distance = candidates[curr]
         next_candidates = {
             coord: curr_distance + 1
