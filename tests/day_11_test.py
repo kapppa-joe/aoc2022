@@ -1,12 +1,11 @@
 import pytest
-from solutions.day_11 import Monkey, parse_raw, part_one, MoreAnnoyingMonkey, part_two
+from solutions.day_11 import Monkey, parse_raw, part_one, part_two
 
 
 @pytest.fixture(autouse=True)
-def reset_monkeys():
+def reset_monkeys_after_each_test():
     yield
     Monkey._all_monkeys = []
-    MoreAnnoyingMonkey._all_monkeys = []
 
 
 example = """Monkey 0:
@@ -136,32 +135,13 @@ def test_monkey_index(monkeys):
     assert all(monkey.index == i for (i, monkey) in enumerate(monkeys))
 
 
-def generate_part_two_monkeys():
-    MoreAnnoyingMonkey._all_monkeys = []
-    return parse_raw(example, part_two=True)
+def get_new_monkeys():
+    Monkey._all_monkeys = []
+    monkeys = parse_raw(example)
+    return monkeys
 
 
-def test_part_two_play_round():
-    monkeys = generate_part_two_monkeys()
-    assert isinstance(monkeys[0], MoreAnnoyingMonkey)
-
-    monkeys[0].play()
-
-    assert monkeys[0].items == []
-    assert monkeys[3].items == [[5, 17, 9, 6], [6, 0, 6, 5], [22, 0, 3, 9]]
-
-    monkeys[1].play()
-
-    assert monkeys[1].items == []
-    assert monkeys[0].items == [
-        [14, 3, 8, 9],
-        [2, 14, 6, 3],
-        [12, 5, 3, 13],
-        [11, 4, 2, 12],
-    ]
-
-
-def test_part_two_inspect_counts():
+def test_part_two_inspect_counts(monkeys):
     test_cases = [
         [1, [2, 4, 3, 6]],
         [20, [99, 97, 8, 103]],
@@ -170,17 +150,16 @@ def test_part_two_inspect_counts():
     ]
 
     for rounds_count, expected in test_cases:
-        monkeys = generate_part_two_monkeys()
+        monkeys = get_new_monkeys()
         for _ in range(rounds_count):
-            MoreAnnoyingMonkey.all_monkeys_take_turn()
+            Monkey.all_monkeys_take_turn(part_two=True)
 
         actual = [monkey.inspect_item_counts for monkey in monkeys]
 
         assert actual == expected
 
 
-def test_part_two():
-    monkeys = generate_part_two_monkeys()
+def test_part_two(monkeys):
     expected = 2713310158
     actual = part_two(monkeys)
 
