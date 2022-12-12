@@ -1,6 +1,3 @@
-from typing import TypeAlias
-from itertools import accumulate
-
 import aoc_helper
 
 
@@ -21,7 +18,7 @@ def parse_raw(raw: str) -> list[tuple[int, int]]:
     return delta_x
 
 
-def x_values_for_all_cycles(delta_x: tuple[int, int]) -> list[int]:
+def x_values_for_all_cycles(delta_x: list[tuple[int, int]]) -> list[int]:
     result = [1]
     for cycle, inc_value in delta_x:
         latest_value = result[-1]
@@ -31,7 +28,7 @@ def x_values_for_all_cycles(delta_x: tuple[int, int]) -> list[int]:
     return result
 
 
-def part_one(delta_x: tuple[int, int]) -> int:
+def part_one(delta_x: list[tuple[int, int]]) -> int:
     x_values = x_values_for_all_cycles(delta_x)
 
     return sum(cycle * x_values[cycle] for cycle in range(20, 220 + 1, 40))
@@ -43,7 +40,7 @@ def pixel_onoff_at_cycle(x_values: list[int], cycle: int) -> bool:
     return abs(x_value_at_cycle - crt_x_pos) <= 1
 
 
-def part_two(delta_x: tuple[int, int]) -> str:
+def part_two(delta_x: list[tuple[int, int]]) -> str:
     x_values = x_values_for_all_cycles(delta_x)
 
     screen = []
