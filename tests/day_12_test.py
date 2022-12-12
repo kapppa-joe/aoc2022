@@ -1,6 +1,12 @@
 import pytest
 
-from solutions.day_12 import parse_raw, reachable_neighbours, part_one, part_two
+from solutions.day_12 import (
+    parse_raw,
+    reachable_neighbours,
+    part_one,
+    find_shortest_path_length,
+    part_two,
+)
 
 
 example = """Sabqponm
@@ -54,10 +60,53 @@ def test_reachable_neighbours(example_grid):
         assert sorted(actual) == sorted(expected)
 
 
+def test_reachable_neighbours_reverse(example_grid):
+    """reverse the reachable function to get path from dest to start"""
+    test_cases = [
+        # third row z, can go to y or dest only
+        [(4, 2), [(4, 1), (5, 2)]],
+        # second row y, can go to x or z only
+        [(4, 1), [(5, 1), (4, 2)]],
+        # top q, can go to p or r only
+        [(3, 0), [(4, 0), (3, 1)]],
+        # top b, can go to a, c, or q (as this is reverse)
+        [(2, 0), [(1, 0), (2, 1), (3, 0)]],
+    ]
+
+    for curr_coord, expected in test_cases:
+        actual = reachable_neighbours(
+            curr_coord=curr_coord, grid=example_grid, reversed=True
+        )
+        assert sorted(actual) == sorted(expected)
+
+
 def test_part_one():
     start, destination, grid = parse_raw(example)
     expected = 31
 
     actual = part_one(start=start, destination=destination, grid=grid)
+
+    assert actual == expected
+
+
+def test_reverse_find_path():
+    start, destination, grid = parse_raw(example)
+    expected = 31
+
+    actual = find_shortest_path_length(
+        start=destination,
+        stop_criteria=lambda coord, _: coord == start,
+        grid=grid,
+        reversed=True,
+    )
+
+    assert actual == expected
+
+
+def test_part_two():
+    _, destination, grid = parse_raw(example)
+    expected = 29
+
+    actual = part_two(destination=destination, grid=grid)
 
     assert actual == expected

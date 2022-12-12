@@ -1,4 +1,4 @@
-from typing import TypeAlias
+from typing import TypeAlias, Callable
 
 import aoc_helper
 
@@ -44,10 +44,17 @@ def get_height(coord: Coord, grid: Grid) -> int:
     return grid[y][x]
 
 
-def reachable_neighbours(curr_coord: Coord, grid: Grid) -> list[Coord]:
-    reachable = (
-        lambda curr, to_reach: get_height(curr, grid) - get_height(to_reach, grid) >= -1
-    )
+def reachable_neighbours(curr_coord: Coord, grid: Grid, reversed=False) -> list[Coord]:
+    if reversed:
+        reachable = (
+            lambda curr, to_reach: get_height(to_reach, grid) - get_height(curr, grid)
+            >= -1
+        )
+    else:
+        reachable = (
+            lambda curr, to_reach: get_height(curr, grid) - get_height(to_reach, grid)
+            >= -1
+        )
     return [
         neighbour_coord
         for neighbour_coord in neighbours(curr_coord, grid)
@@ -55,7 +62,12 @@ def reachable_neighbours(curr_coord: Coord, grid: Grid) -> list[Coord]:
     ]
 
 
-def part_one(start: Coord, destination: Coord, grid: Grid) -> int:
+def find_shortest_path_length(
+    start: Coord,
+    stop_criteria: Callable[[Coord, Grid], bool],
+    grid: Grid,
+    reversed=False,
+) -> int:
     candidates = {start: 0}
     visited = set()
 
@@ -64,12 +76,14 @@ def part_one(start: Coord, destination: Coord, grid: Grid) -> int:
         curr_distance = candidates[curr]
         next_candidates = {
             coord: curr_distance + 1
-            for coord in reachable_neighbours(curr_coord=curr, grid=grid)
+            for coord in reachable_neighbours(
+                curr_coord=curr, grid=grid, reversed=reversed
+            )
             if not coord in visited
         }
 
-        if destination in next_candidates:
-            return next_candidates[destination]
+        if any(stop_criteria(coord, grid) for coord in next_candidates):
+            return curr_distance + 1
 
         candidates.update(next_candidates)
         visited.add(curr)
@@ -78,8 +92,19 @@ def part_one(start: Coord, destination: Coord, grid: Grid) -> int:
     raise RuntimeError("Fail to reach destination")
 
 
-def part_two(data):
-    ...
+def part_one(start: Coord, destination: Coord, grid: Grid) -> int:
+    return find_shortest_path_length(
+        start=start, stop_criteria=lambda coord, _: coord == destination, grid=grid
+    )
+
+
+def part_two(destination: Coord, grid: Grid):
+    return find_shortest_path_length(
+        start=destination,
+        stop_criteria=lambda coord, grid: get_height(coord, grid) == 0,
+        grid=grid,
+        reversed=True,
+    )
 
 
 if __name__ == "__main__":
@@ -87,7 +112,7 @@ if __name__ == "__main__":
     day = 12
 
     raw_data = aoc_helper.fetch(day, 2022)
-    parsed_data = parse_raw(raw_data)
+    start, destination, grid = parse_raw(raw_data)
 
-    print(f"part one solution: {part_one(*parsed_data)}")
-    print(f"part two solution: {part_two(parsed_data)}")
+    print(f"part one solution: {part_one(start, destination, grid)}")
+    print(f"part two solution: {part_two(destination, grid)}")
