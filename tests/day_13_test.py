@@ -3,7 +3,7 @@ import pytest
 from solutions.day_13 import (
     parse_raw,
     parse_packet_string,
-    in_right_order,
+    compare_packets,
     add_divider_packets,
     sort_packet_strings,
     part_one,
@@ -51,13 +51,16 @@ def test_parse_packet_string():
         assert actual == expected[i]
 
 
-def test_in_right_order():
-    expected_results = [True, True, False, True, False, True, False, False]
+def test_compare_packets():
+    expected_results = [-1, -1, 1, -1, 1, -1, 1, 1]
 
-    pairs = parse_raw(example)
+    pairs = [
+        (parse_packet_string(left), parse_packet_string(right))
+        for (left, right) in parse_raw(example)
+    ]
 
     for i, pair in enumerate(pairs):
-        actual = in_right_order(*pair)
+        actual = compare_packets(*pair)
         assert actual == expected_results[i]
 
 

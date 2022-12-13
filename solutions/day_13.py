@@ -6,7 +6,8 @@ import json
 
 import aoc_helper
 
-Packet: TypeAlias = list[Union[int, "Packet"]]
+Packet: TypeAlias = list["PacketElement"]
+PacketElement: TypeAlias = int | Packet
 
 DividerPackets = ["[[2]]", "[[6]]"]
 
@@ -17,7 +18,6 @@ def parse_raw(raw: str) -> list[tuple[str, str]]:
 
 
 def add_divider_packets(pairs: list[tuple[str, str]]) -> list[str]:
-
     return [packet_str for pair in pairs for packet_str in pair] + DividerPackets
 
 
@@ -31,25 +31,28 @@ def in_right_order(left_str: str, right_str: str) -> bool:
     return compare_packets(left, right) == -1
 
 
-def compare_packets(left: int | Packet, right: int | Packet) -> int:
-    if isinstance(left, int) and isinstance(right, int):
-        if left == right:
+def compare_packets(left: Packet, right: Packet) -> int:
+    for left_elem, right_elem in zip_longest(left, right, fillvalue=None):
+        if left_elem is None or right_elem is None:
+            return -1 if left_elem is None else 1
+        else:
+            curr_element_comparison = compare_packets_element(left_elem, right_elem)
+            if curr_element_comparison in [-1, 1]:
+                return curr_element_comparison
+    return 0
+
+
+def compare_packets_element(left_elem: PacketElement, right_elem: PacketElement) -> int:
+    if isinstance(left_elem, int) and isinstance(right_elem, int):
+        if left_elem == right_elem:
             return 0
-        return -1 if left < right else 1
+        return -1 if left_elem < right_elem else 1
+    elif isinstance(left_elem, list) and isinstance(right_elem, list):
+        return compare_packets(left_elem, right_elem)
 
-    elif isinstance(left, list) and isinstance(right, list):
-        for left_elem, right_elem in zip_longest(left, right, fillvalue=None):
-            if left_elem is None or right_elem is None:
-                return -1 if left_elem is None else 1
-            else:
-                curr_element_comparison = compare_packets(left_elem, right_elem)
-                if curr_element_comparison in [-1, 1]:
-                    return curr_element_comparison
-        return 0
-    else:
-        return compare_packets(convert_int_to_list(left), convert_int_to_list(right))
-
-    raise RuntimeError("Got unexpected pattern of input data")
+    return compare_packets(
+        convert_int_to_list(left_elem), convert_int_to_list(right_elem)
+    )
 
 
 def convert_int_to_list(value: int | list) -> list:
