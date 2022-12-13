@@ -2,6 +2,7 @@ from typing import TypeAlias, Union
 from itertools import zip_longest
 from functools import cache, cmp_to_key
 import re
+import json
 
 import aoc_helper
 
@@ -22,7 +23,7 @@ def add_divider_packets(pairs: list[tuple[str, str]]) -> list[str]:
 
 @cache
 def parse_packet_string(packet_string: str) -> Packet:
-    return eval(packet_string)
+    return json.loads(packet_string)
 
 
 def in_right_order(left_str: str, right_str: str) -> bool:
