@@ -1,4 +1,4 @@
-from typing import TypeAlias, Union
+from typing import TypeAlias
 from itertools import zip_longest
 from functools import cache, cmp_to_key
 import re
@@ -13,8 +13,7 @@ DividerPackets = ["[[2]]", "[[6]]"]
 
 
 def parse_raw(raw: str) -> list[tuple[str, str]]:
-    sanitised_raw = re.sub(r"[^\[\] \n\d\,]", "", raw)
-    return [tuple(pair.split("\n")) for pair in sanitised_raw.split("\n\n")]
+    return [tuple(pair.split("\n")) for pair in raw.split("\n\n")]
 
 
 def add_divider_packets(pairs: list[tuple[str, str]]) -> list[str]:
