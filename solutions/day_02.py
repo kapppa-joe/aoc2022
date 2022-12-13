@@ -38,7 +38,7 @@ def round_score(opponent: str, player: str) -> int:
     return win_lose_score(opponent, player) + shape_score(player)
 
 
-def part_one(data):
+def part_one(data: list[tuple[str, str]]):
     return sum(round_score(*combination) for combination in data)
 
 
@@ -48,14 +48,15 @@ def round_score_part_two(opponent: str, winlose: str) -> int:
     )
 
 
-def part_two(data):
+def part_two(data: list[tuple[str, str]]):
     return sum(round_score_part_two(*combination) for combination in data)
 
 
 if __name__ == "__main__":
+    day = 2
 
-    raw_data = aoc_helper.fetch(2, 2022)
+    raw_data = aoc_helper.fetch(day, 2022)
     parsed_data = parse_raw(raw_data)
 
-    aoc_helper.lazy_submit(day=2, year=2022, solution=lambda: part_one(parsed_data))
-    aoc_helper.lazy_submit(day=2, year=2022, solution=lambda: part_two(parsed_data))
+    print(f"part one solution: {part_one(parsed_data)}")
+    print(f"part two solution: {part_two(parsed_data)}")

@@ -9,17 +9,20 @@ def parse_raw(raw_input: str) -> list[list[int]]:
     return elves_calories
 
 
-data = parse_raw(raw)
-
-
-def part_one() -> int:
+def part_one(data: list[list[int]]) -> int:
     return max(sum(elf) for elf in data)
 
 
-def part_two() -> int:
+def part_two(data: list[list[int]]) -> int:
     elves_sorted = sorted((sum(elf) for elf in data), reverse=True)
     return sum(elves_sorted[:3])
 
 
-aoc_helper.lazy_submit(day=1, year=2022, solution=part_one)
-aoc_helper.lazy_submit(day=1, year=2022, solution=part_two)
+if __name__ == "__main__":
+    day = 1
+
+    raw_data = aoc_helper.fetch(day, 2022)
+    parsed_data = parse_raw(raw_data)
+
+    print(f"part one solution: {part_one(parsed_data)}")
+    print(f"part two solution: {part_two(parsed_data)}")
