@@ -25,14 +25,6 @@ def parse_raw(raw: str) -> set[Coord]:
     ]
 
     result = set()
-    # for rock_lines in rock_lines_list:
-    #     current_point = None
-    #     for next_point in rock_lines:
-    #         if not current_point:
-    #             current_point = next_point
-    #             continue
-    #         result = result.union(all_points_in_line(current_point, next_point))
-    #         current_point = next_point
     for rock_lines in rock_lines_list:
         for line_start, line_end in itertools.pairwise(rock_lines):
             result = result.union(all_points_in_line(line_start, line_end))
@@ -94,7 +86,6 @@ def simulate_sand_falling_down(
                 continue
             case None:
                 return (x, y)
-                # source is block if next step is None and current x, y is source
 
     return x, y
 
