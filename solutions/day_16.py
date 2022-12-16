@@ -1,58 +1,56 @@
 import re
 import functools
+import itertools
 from typing import Iterable
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+import numpy as np
 
 import aoc_helper
 
+ValveSet = frozenset[str]
 
+# use immutable state to allow easy memoization by functools.cache
 @dataclass(frozen=True)
 class State:
-    current_valve: str | tuple[str, str]
-    valves_opened: frozenset[set]
+    current_valve: str
     remaining_time: int
-
-    def open_valve(self, valve_names: Iterable[str]) -> "State":
-        return State(
-            current_valve=self.current_valve,
-            remaining_time=self.remaining_time - 1,
-            valves_opened=self.valves_opened.union(valve_names),
-        )
-
-    def change_location(self, new_location: str | tuple[str, str]):
-        if type(self.current_valve) != type(new_location):
-            raise "location type doesn't match current. be careful to separate case working alone or working together with an elephant"
-        return State(
-            current_valve=new_location,
-            remaining_time=self.remaining_time - 1,
-            valves_opened=self.valves_opened,
-        )
-
-    def open_valve_and_change_location(
-        self,
-        new_location: tuple[str, str],
-        valve_names: Iterable[str],
-    ):
-        if type(self.current_valve) == str:
-            raise "location type doesn't match current. be careful to separate case working alone or working together with an elephant"
-        return State(
-            current_valve=new_location,
-            remaining_time=self.remaining_time - 1,
-            valves_opened=self.valves_opened.union(valve_names),
-        )
+    valves_opened: ValveSet = frozenset()
 
 
 class ValveNetwork:
     def __init__(self, raw: str):
         self._valves = {}
-        self._connections = {}
+        self._edges = {}
         pattern = r"Valve (\w+) has flow rate=(\d+).*to valves? (.+)"
         for name, rate, neighbour_valves in re.findall(pattern, raw):
             self._valves[name] = int(rate)
-            self._connections[name] = frozenset(neighbour_valves.split(", "))
+            self._edges[name] = frozenset(neighbour_valves.split(", "))
+        self.dist: dict[tuple[str, str], int] = self.calc_all_distances()
 
-    def neighbour_valves(self, valve_name: str) -> frozenset[str]:
-        return self._connections[valve_name]
+    def neighbour_valves(self, valve_name: str) -> ValveSet:
+        return self._edges[valve_name]
+
+    def calc_all_distances(self) -> dict[tuple[str, str], int]:
+        n = len(self.valves)
+        arr = np.full(shape=(n, n), fill_value=n + 1)
+
+        for valve in range(n):
+            arr[valve, valve] = 0
+
+        for (a, b) in itertools.combinations(list(range(n)), 2):
+            if self.valves[b] in self.neighbour_valves(self.valves[a]):
+                arr[a, b] = 1
+                arr[b, a] = 1
+
+        for (k, i, j) in itertools.product(list(range(n)), repeat=3):
+            arr[i, j] = min(arr[i, j], arr[i, k] + arr[k, j])
+
+        dist = {
+            (self.valves[x], self.valves[y]): arr[x, y]
+            for x in range(n)
+            for y in range(n)
+        }
+        return dist
 
     def flow_rate(self, valve_name: str) -> int:
         return self._valves[valve_name]
@@ -61,72 +59,73 @@ class ValveNetwork:
     def valves(self) -> list[str]:
         return list(self._valves)
 
-    def possible_choices(
-        self,
-        current_valve: str,
-        valves_opened: frozenset[set],
-        remaining_time: int,
-    ) -> Iterable[int]:
-        # do nothing
-        yield self.total_pressure_released(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time - 1,
-        )
-        # open the current valve
-        if current_valve not in valves_opened and self.flow_rate(current_valve) > 0:
-            total_gain_from_current_valve = self.flow_rate(current_valve) * (
-                remaining_time - 1
-            )
-            yield total_gain_from_current_valve + self.total_pressure_released(
-                current_valve=current_valve,
-                valves_opened=valves_opened.union([current_valve]),
-                remaining_time=remaining_time - 1,
-            )
-        # go to a neighbour value
-        for neighbour in self.neighbour_valves(current_valve):
-            yield self.total_pressure_released(
-                current_valve=neighbour,
-                valves_opened=valves_opened,
-                remaining_time=remaining_time - 1,
-            )
+    @property
+    def useful_valves(self) -> ValveSet:
+        return frozenset([valve for valve in self.valves if self.flow_rate(valve) > 0])
 
     @functools.cache
-    def maximized_release_from_choice(
-        self,
-        current_valve: str,
-        valves_opened: frozenset[set],
-        remaining_time: int,
-    ):
-        possible_choices = self.possible_choices(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
-        )
+    def untapped_valves(self, valves_opened: ValveSet) -> dict[str, int]:
+        return {
+            valve: self.flow_rate(valve)
+            for valve in self.useful_valves.difference(valves_opened)
+        }
 
-        return max(
-            self.possible_choices(
-                current_valve=current_valve,
-                valves_opened=valves_opened,
-                remaining_time=remaining_time,
+    def possible_choices(self, state) -> Iterable[int]:
+        current_valve = state.current_valve
+        remaining_time = state.remaining_time
+        valves_opened = state.valves_opened
+
+        for target_valve, flow_rate in self.untapped_valves(valves_opened).items():
+            distance = self.dist[(current_valve, target_valve)]
+            if remaining_time <= distance + 1:
+                # skip if no benefit trying open that valve
+                continue
+            total_gain = flow_rate * (remaining_time - distance - 1)
+            new_state = State(
+                current_valve=target_valve,
+                remaining_time=remaining_time - distance - 1,
+                valves_opened=valves_opened.union([target_valve]),
             )
-        )
+            yield total_gain + self.maximized_release(state=new_state)
 
-    def total_pressure_released(
-        self,
-        current_valve: str,
-        valves_opened: frozenset[set],
-        remaining_time: int,
-    ) -> int:
-        if remaining_time < 2:
-            return 0
+        # if no way to open a new valve in remaining time, return 0
+        yield 0
 
-        best_choice = self.maximized_release_from_choice(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
-        )
-        return best_choice
+    @functools.cache
+    def maximized_release(self, state: State):
+        possible_choices = self.possible_choices(state=state)
+
+        return max(possible_choices)
+
+    @functools.cache
+    def explore_all_solutions(self, state: State) -> dict[ValveSet, int]:
+        # less efficient then maximized_release, but is necessary to find sub-optimal solution for part two
+        current_valve = state.current_valve
+        remaining_time = state.remaining_time
+        valves_opened = state.valves_opened
+
+        # add curr route to memo here
+        combined_solution = {valves_opened: 0}
+
+        for target_valve, flow_rate in self.untapped_valves(valves_opened).items():
+            distance = self.dist[(current_valve, target_valve)]
+            if remaining_time < distance:
+                continue
+            newly_released = flow_rate * (remaining_time - distance - 1)
+
+            new_state = State(
+                current_valve=target_valve,
+                remaining_time=remaining_time - distance - 1,
+                valves_opened=valves_opened.union([target_valve]),
+            )
+            recur_solutions = self.explore_all_solutions(state=new_state)
+            for key in recur_solutions:
+                # fill in the value to memo here, so that function signature don't need to keep track of release got already.
+                combined_solution[key] = max(
+                    recur_solutions[key] + newly_released, combined_solution.get(key, 0)
+                )
+
+        return combined_solution
 
 
 def parse_raw(raw: str) -> ValveNetwork:
@@ -134,18 +133,25 @@ def parse_raw(raw: str) -> ValveNetwork:
 
 
 def part_one(network: ValveNetwork) -> int:
-    initial_valve = "AA"
-    valves_opened = frozenset()
-    remaining_time = 30
-    return network.total_pressure_released(
-        current_valve=initial_valve,
-        valves_opened=valves_opened,
-        remaining_time=remaining_time,
+    initial_state = State(current_valve="AA", remaining_time=30)
+    return network.maximized_release(initial_state)
+
+
+def part_two(network: ValveNetwork) -> int:
+    initial_state = State(current_valve="AA", remaining_time=26)
+    all_solutions = network.explore_all_solutions(state=initial_state)
+
+    all_disjointed_routes = (
+        (set_a, set_b)
+        for set_a, set_b in itertools.combinations(all_solutions, r=2)
+        if set(set_a).isdisjoint(set(set_b))
+    )
+    max_combined_score = max(
+        all_solutions[set_a] + all_solutions[set_b]
+        for set_a, set_b in all_disjointed_routes
     )
 
-
-def part_two(data):
-    ...
+    return max_combined_score
 
 
 if __name__ == "__main__":

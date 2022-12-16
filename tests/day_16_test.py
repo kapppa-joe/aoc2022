@@ -1,5 +1,10 @@
 import pytest
-from solutions.day_16 import ValveNetwork, parse_raw, part_one, part_two, State
+from solutions.day_16 import (
+    parse_raw,
+    part_one,
+    part_two,
+    State,
+)
 
 example = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
@@ -40,16 +45,40 @@ def create_example_network():
     return parse_raw(example)
 
 
-class TestTotalPressureReleased:
+def test_calc_all_distances(network):
+    dist = network.dist
+    assert dist["AA", "AA"] == 0
+    assert dist["AA", "DD"] == 1
+    assert dist["AA", "JJ"] == 2
+    assert dist["JJ", "HH"] == 7
+    assert dist["GG", "BB"] == 5
+    assert dist["BB", "EE"] == 3
+    assert dist["II", "GG"] == 5
+
+    for distance in network.dist.values():
+        assert 0 <= distance <= len(network.valves)
+
+
+def test_untapped_valves(network):
+    valves_opened = frozenset(["JJ", "DD"])
+    expected = {"BB": 13, "CC": 2, "EE": 3, "HH": 22}
+    actual = network.untapped_valves(valves_opened)
+
+    assert actual == expected
+
+
+class TestMaximizedPressureReleased:
     def test_naive_case(self, network):
         current_valve = "AA"
         valves_opened = frozenset(network.valves)
         remaining_time = 0
 
-        actual = network.total_pressure_released(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
+        actual = network.maximized_release(
+            State(
+                current_valve=current_valve,
+                valves_opened=valves_opened,
+                remaining_time=remaining_time,
+            )
         )
         assert actual == 0
 
@@ -59,10 +88,12 @@ class TestTotalPressureReleased:
         remaining_time = 1
 
         expected = 0
-        actual = network.total_pressure_released(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
+        actual = network.maximized_release(
+            State(
+                current_valve=current_valve,
+                valves_opened=valves_opened,
+                remaining_time=remaining_time,
+            )
         )
         assert actual == expected
 
@@ -72,10 +103,12 @@ class TestTotalPressureReleased:
         remaining_time = 2
 
         expected = 13
-        actual = network.total_pressure_released(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
+        actual = network.maximized_release(
+            State(
+                current_valve=current_valve,
+                valves_opened=valves_opened,
+                remaining_time=remaining_time,
+            )
         )
         assert actual == expected
 
@@ -85,10 +118,12 @@ class TestTotalPressureReleased:
         remaining_time = 3
 
         expected = 20
-        actual = network.total_pressure_released(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
+        actual = network.maximized_release(
+            State(
+                current_valve=current_valve,
+                valves_opened=valves_opened,
+                remaining_time=remaining_time,
+            )
         )
         assert actual == expected
 
@@ -98,47 +133,47 @@ class TestTotalPressureReleased:
         remaining_time = 5
 
         expected = 88
-        actual = network.total_pressure_released(
-            current_valve=current_valve,
-            valves_opened=valves_opened,
-            remaining_time=remaining_time,
+        actual = network.maximized_release(
+            State(
+                current_valve=current_valve,
+                valves_opened=valves_opened,
+                remaining_time=remaining_time,
+            )
         )
         assert actual == expected
 
+    # repeated with test part one
     # def test_solve_example_case(self, network):
-    #     current_valve = "AA"
-    #     valves_opened = frozenset()
-    #     remaining_time = 30
+    #     state = State(current_valve="AA", valves_opened=frozenset(), remaining_time=30)
 
     #     expected = 1651
 
-    #     actual = network.total_pressure_released(
-    #         current_valve=current_valve,
-    #         valves_opened=valves_opened,
-    #         remaining_time=remaining_time,
-    #     )
+    #     actual = network.maximized_release(state)
     #     assert actual == expected
 
 
-# def test_part_one(network):
-#     expected = 1651
-#     actual = part_one(network=network)
+def test_part_one(network):
+    expected = 1651
+    actual = part_one(network=network)
 
-#     assert actual == expected
+    assert actual == expected
 
 
-class TestState:
-    def test_basic_state_management(self):
-        state = State(current_valve="AA", valves_opened=frozenset(), remaining_time=30)
+def test_explore_all_solutions(network):
+    state = State(current_valve="AA", remaining_time=26)
 
-        assert state.current_valve == "AA"
-        assert state.valves_opened == frozenset()
-        assert state.remaining_time == 30
+    solutions = network.explore_all_solutions(state)
+    elephant_route = frozenset(["DD", "HH", "EE"])
+    man_route = frozenset(["JJ", "BB", "CC"])
 
-        state2 = state.open_valve(["AA"])
-        assert state2.valves_opened == frozenset(["AA"])
-        assert state2.remaining_time == 29
+    assert elephant_route in solutions
+    assert man_route in solutions
 
-        state3 = state2.change_location("BB")
-        assert state3.current_valve == "BB"
-        assert state3.remaining_time == 28
+    assert solutions[elephant_route] + solutions[man_route] == 1707
+
+
+def test_part_two(network):
+    expected = 1707
+    actual = part_two(network=network)
+
+    assert actual == expected
