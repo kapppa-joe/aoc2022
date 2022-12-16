@@ -15,6 +15,7 @@ black = "^22.10.0"
 pylint = "^2.15.7"
 pytest-testmon = "^1.4.2"
 pytest-watch = "^4.2.0"
+jupyter = "^1.0.0"
 
 
 [build-system]

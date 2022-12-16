@@ -1,8 +1,45 @@
 import re
 import functools
 from typing import Iterable
+from dataclasses import dataclass, asdict
 
 import aoc_helper
+
+
+@dataclass(frozen=True)
+class State:
+    current_valve: str | tuple[str, str]
+    valves_opened: frozenset[set]
+    remaining_time: int
+
+    def open_valve(self, valve_names: Iterable[str]) -> "State":
+        return State(
+            current_valve=self.current_valve,
+            remaining_time=self.remaining_time - 1,
+            valves_opened=self.valves_opened.union(valve_names),
+        )
+
+    def change_location(self, new_location: str | tuple[str, str]):
+        if type(self.current_valve) != type(new_location):
+            raise "location type doesn't match current. be careful to separate case working alone or working together with an elephant"
+        return State(
+            current_valve=new_location,
+            remaining_time=self.remaining_time - 1,
+            valves_opened=self.valves_opened,
+        )
+
+    def open_valve_and_change_location(
+        self,
+        new_location: tuple[str, str],
+        valve_names: Iterable[str],
+    ):
+        if type(self.current_valve) == str:
+            raise "location type doesn't match current. be careful to separate case working alone or working together with an elephant"
+        return State(
+            current_valve=new_location,
+            remaining_time=self.remaining_time - 1,
+            valves_opened=self.valves_opened.union(valve_names),
+        )
 
 
 class ValveNetwork:
