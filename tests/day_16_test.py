@@ -40,20 +40,6 @@ def create_example_network():
     return parse_raw(example)
 
 
-def test_current_flow_rate(network):
-    test_case = [
-        [["AA"], 0],
-        [["AA", "BB"], 13],
-        [["DD", "AA", "BB", "CC"], 13 + 2 + 20],
-        [network.valves, 13 + 2 + 20 + 3 + 22 + 21],
-    ]
-
-    for valves_opened, expected in test_case:
-        valves_opened = frozenset(valves_opened)
-        actual = network.current_flow_rate(valves_opened)
-        assert actual == expected
-
-
 class TestTotalPressureReleased:
     def test_naive_case(self, network):
         current_valve = "AA"
@@ -67,12 +53,12 @@ class TestTotalPressureReleased:
         )
         assert actual == 0
 
-    def test_base_case(self, network):
-        current_valve = "AA"
+    def test_1_minute_case(self, network):
+        current_valve = "BB"
         valves_opened = frozenset(["BB"])
         remaining_time = 1
 
-        expected = 13
+        expected = 0
         actual = network.total_pressure_released(
             current_valve=current_valve,
             valves_opened=valves_opened,

@@ -24,10 +24,6 @@ class ValveNetwork:
     def valves(self) -> list[str]:
         return list(self._valves)
 
-    @functools.cache
-    def current_flow_rate(self, valves_opened: frozenset[str]) -> int:
-        return sum(self.flow_rate(valve_name) for valve_name in valves_opened)
-
     def possible_choices(
         self,
         current_valve: str,
@@ -38,47 +34,62 @@ class ValveNetwork:
         yield self.total_pressure_released(
             current_valve=current_valve,
             valves_opened=valves_opened,
-            remaining_time=remaining_time,
+            remaining_time=remaining_time - 1,
         )
         # open the current valve
         if current_valve not in valves_opened and self.flow_rate(current_valve) > 0:
-            yield self.total_pressure_released(
+            total_gain_from_current_valve = self.flow_rate(current_valve) * (
+                remaining_time - 1
+            )
+            yield total_gain_from_current_valve + self.total_pressure_released(
                 current_valve=current_valve,
                 valves_opened=valves_opened.union([current_valve]),
-                remaining_time=remaining_time,
+                remaining_time=remaining_time - 1,
             )
         # go to a neighbour value
         for neighbour in self.neighbour_valves(current_valve):
             yield self.total_pressure_released(
                 current_valve=neighbour,
                 valves_opened=valves_opened,
-                remaining_time=remaining_time,
+                remaining_time=remaining_time - 1,
             )
 
     @functools.cache
+    def maximized_release_from_choice(
+        self,
+        current_valve: str,
+        valves_opened: frozenset[set],
+        remaining_time: int,
+    ):
+        possible_choices = self.possible_choices(
+            current_valve=current_valve,
+            valves_opened=valves_opened,
+            remaining_time=remaining_time,
+        )
+
+        return max(
+            self.possible_choices(
+                current_valve=current_valve,
+                valves_opened=valves_opened,
+                remaining_time=remaining_time,
+            )
+        )
+
     def total_pressure_released(
         self,
         current_valve: str,
         valves_opened: frozenset[set],
         remaining_time: int,
     ) -> int:
-        if remaining_time == 0:
+        if remaining_time < 2:
             return 0
 
-        release_for_this_minute = self.current_flow_rate(valves_opened)
-
-        if remaining_time == 1:
-            return release_for_this_minute
-
-        best_choice = max(
-            self.possible_choices(
-                current_valve=current_valve,
-                valves_opened=valves_opened,
-                remaining_time=remaining_time - 1,
-            )
+        best_choice = self.maximized_release_from_choice(
+            current_valve=current_valve,
+            valves_opened=valves_opened,
+            remaining_time=remaining_time,
         )
-
-        return best_choice + release_for_this_minute
+        return best_choice
 
 
 def parse_raw(raw: str) -> ValveNetwork:
