@@ -1,4 +1,5 @@
 import pytest
+import numpy as np
 from solutions.day_17 import (
     parse_raw,
     part_one,
@@ -54,7 +55,7 @@ def test_parse_raw():
 
 
 def test_cave_basic(cave):
-    assert cave.rock_height == 0
+    assert cave.rock_tower_height == 0
     assert cave.rest_rock_count == 0
 
 
@@ -103,6 +104,75 @@ def test_simulate_first_rock_fall(cave):
     cave.make_next_rock()
     cave.fall_until_rock_rest()
 
-    assert cave.rock_height == 1
+    assert cave.rock_tower_height == 1
     assert cave.rest_rock_count == 1
-    # assert cave.array ==
+    assert cave.array.tolist() == [
+        [0, 0, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]
+
+
+def test_select_cave_by_rock_shape(cave):
+    # simulate the case of 2nd rock
+    cave.array = np.array(
+        [
+            [0, 0, 1, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+        ]
+    )
+    actual = cave.select_area_by_rock_shape(pos=(0, 2), kind=1)  # x=2, y=0
+    expected = [
+        [1, 1, 1],
+        [0, 0, 0],
+        [0, 0, 0],
+    ]
+    assert actual.tolist() == expected
+
+    cave.array = np.array(
+        [
+            [0, 0, 1, 1, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 1, 1, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0],
+        ]
+    )
+    actual = cave.select_area_by_rock_shape(pos=(1, 2), kind=1)  # x=2, y=1
+    expected = [
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 1, 0],
+    ]
+
+    assert actual.tolist() == expected
+
+    actual = cave.select_area_by_rock_shape(pos=(0, 3), kind=4)  # x=3, y=0
+    expected = [
+        [1, 1],
+        [1, 0],
+    ]
+
+    assert actual.tolist() == expected
+
+
+def test_simulate_second_rock_fall(cave):
+    cave.make_next_rock()
+    cave.fall_until_rock_rest()
+
+    rock = cave.make_next_rock()
+    assert rock.kind == 1
+    assert rock.shape == (3, 3)
+
+    cave.fall_until_rock_rest()
+    assert cave.rock_tower_height == 4
+    assert cave.rest_rock_count == 2
+    assert cave.array.tolist() == [
+        [0, 0, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]
