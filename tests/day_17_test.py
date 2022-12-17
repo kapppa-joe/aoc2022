@@ -187,9 +187,8 @@ def test_simulate_third_rock_fall(cave):
     assert rock.kind == 2
 
     cave.fall_until_rock_rest()
-    # assert cave.rock_tower_height == 6
+    assert cave.rock_tower_height == 6
     assert cave.rest_rock_count == 3
-    print(str(cave.array.tolist()))
     assert cave.array.tolist() == [
         [0, 0, 1, 1, 1, 1, 0],
         [0, 0, 0, 1, 0, 0, 0],
@@ -200,3 +199,35 @@ def test_simulate_third_rock_fall(cave):
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
+
+
+def test_simulate_rock_fall_3(cave):
+    cave.simulate_rock_fall(number_of_rocks=3)
+    assert cave.rock_tower_height == 6
+
+
+test_case_for_part_one_simulation = [
+    [3, 6],
+    [4, 7],
+    [5, 9],
+    [6, 10],
+    [7, 13],
+    [8, 15],
+    [9, 17],
+    [10, 17],
+]
+
+
+@pytest.mark.parametrize("n, expected", test_case_for_part_one_simulation)
+def test_simulate_rock_fall_part_one(cave, n, expected):
+    cave.simulate_rock_fall(number_of_rocks=n)
+    assert cave.rock_tower_height == expected
+
+
+def test_part_one():
+    expected = 3068
+
+    cave = parse_raw(example)
+    actual = part_one(cave=cave)
+
+    assert actual == expected

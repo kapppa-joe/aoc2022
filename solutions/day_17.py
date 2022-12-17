@@ -47,17 +47,14 @@ def rock_array(kind: int) -> np.ndarray:
             raise RuntimeError("rock of invalid kind")
 
 
-@functools.cache
 def rock_width(kind: int) -> int:
     return rock_array(kind).shape[1]
 
 
-@functools.cache
 def rock_max_x(kind: int, boundry=7) -> int:
     return boundry - rock_width(kind)
 
 
-@functools.cache
 def rock_shape(kind: int) -> tuple[int, int]:
     return rock_array(kind).shape
 
@@ -130,6 +127,9 @@ class Cave:
         self.current_rock_pos = (y, new_x)
 
     def current_rock_will_collide(self, pos: Coord) -> bool:
+        if pos[0] < 0 or pos[1] < 0:
+            return True
+
         area_to_occupy = self.select_area_by_rock_shape(
             pos=pos, kind=self.current_rock.kind
         )
@@ -156,7 +156,7 @@ class Cave:
     def handle_rock_rest(self):
         y0, x0 = self.current_rock_pos
         dy, dx = self.current_rock.shape
-        self.array[y0 : y0 + dy, x0 : x0 + dx] = self.current_rock.array
+        self.array[y0 : y0 + dy, x0 : x0 + dx] |= self.current_rock.array
 
         self.update_rock_tower_height()
         self.rest_rock_count += 1
@@ -179,7 +179,12 @@ class Cave:
             return True
         raise RuntimeError("Rock not come to rest but iter stopped")
 
-    # def simulate_rock_fall(self):
+    def simulate_rock_fall(self, number_of_rocks: int):
+        for _ in range(number_of_rocks):
+            self.make_next_rock()
+            res = self.fall_until_rock_rest()
+            if res != True:
+                raise RuntimeError("Error encountered")
 
 
 def parse_raw(raw: str) -> Cave:
@@ -187,8 +192,9 @@ def parse_raw(raw: str) -> Cave:
     return Cave(jet=jet)
 
 
-def part_one(data):
-    ...
+def part_one(cave: Cave) -> int:
+    cave.simulate_rock_fall(number_of_rocks=2022)
+    return cave.rock_tower_height
 
 
 def part_two(data):
@@ -197,7 +203,7 @@ def part_two(data):
 
 if __name__ == "__main__":
 
-    day = None
+    day = 17
 
     raw_data = aoc_helper.fetch(day, 2022)
     parsed_data = parse_raw(raw_data)
