@@ -54,6 +54,9 @@ class Rock:
     def max_x(self, boundry=7) -> int:
         return boundry - self.width()
 
+    def shape(self) -> tuple[int, int]:
+        return self.array().shape
+
 
 class Cave:
     def __init__(self, jet: Jet, width=7, array=None):
@@ -64,8 +67,8 @@ class Cave:
         self.rest_rock_count = 0
         self.current_rock = None
 
-    def extend(self):
-        self.array = np.append(self.array, np.zeros((3, self.width), int), axis=0)
+    def extend(self, n: int = 3):
+        self.array = np.append(self.array, np.zeros((n, self.width), int), axis=0)
 
     def make_next_rock(self):
         rock_pos = (2, self.rock_height + 3)
@@ -101,6 +104,25 @@ class Cave:
                 self.blow_rock(jet_direction)
                 self.rock_fall()
         except RockComeToRest:
+            self.extend()
+            x0, y0 = self.current_rock.pos
+            print(x0, y0, "<--")
+            print(self.current_rock.array(), "<---")
+            print(self.array[0:4, :], "<---")
+
+            dy, dx = self.current_rock.shape()
+            print(dx, dy, "<- dx, dy")
+            self.array[y0 : y0 + dy, x0 : x0 + dx] = self.current_rock.array()
+
+            print(self.array, "<--- this array")
+            cave_height = self.array.shape[0]
+            self.rock_height = next(
+                y + 1
+                for y in range(cave_height - 1, self.rock_height - 1, -1)
+                if self.array[y, :].any()
+            )
+
+            self.rest_rock_count += 1
 
             return True
         raise RuntimeError("Rock not come to rest but iter stopped")
