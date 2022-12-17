@@ -62,12 +62,12 @@ def test_make_rock(cave):
     rock = cave.make_next_rock()
 
     assert rock.kind == 0
-    assert rock.pos == (2, 3)
-    assert (rock.array() == [[1, 1, 1, 1]]).all()
+    assert cave.current_rock_pos == (3, 2)
+    assert (rock.array == [[1, 1, 1, 1]]).all()
 
 
 def test_rocks_max_x():
-    rocks = [Rock(kind=kind, pos=(0, 0)) for kind in range(5)]
+    rocks = [Rock(kind=kind) for kind in range(5)]
     expected = [3, 4, 4, 6, 5]
     actual = [rock.max_x() for rock in rocks]
 
@@ -78,25 +78,25 @@ def test_rock_left_right_movement(cave):
     rock = cave.make_next_rock()
 
     cave.blow_rock(">")
-    assert rock.pos == (3, 3)
+    assert cave.current_rock_pos == (3, 3)
 
     cave.blow_rock(">")
-    assert rock.pos == (3, 3)
+    assert cave.current_rock_pos == (3, 3)
 
     cave.blow_rock("<")
-    assert rock.pos == (2, 3)
+    assert cave.current_rock_pos == (3, 2)
 
     cave.blow_rock("<")
-    assert rock.pos == (1, 3)
+    assert cave.current_rock_pos == (3, 1)
 
     cave.blow_rock("<")
-    assert rock.pos == (0, 3)
+    assert cave.current_rock_pos == (3, 0)
 
     cave.blow_rock("<")
-    assert rock.pos == (0, 3)
+    assert cave.current_rock_pos == (3, 0)
 
     cave.blow_rock(">")
-    assert rock.pos == (1, 3)
+    assert cave.current_rock_pos == (3, 1)
 
 
 def test_simulate_first_rock_fall(cave):

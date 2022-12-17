@@ -1,5 +1,7 @@
 import numpy as np
+from dataclasses import dataclass
 import itertools
+import functools
 from typing import Iterable
 
 import aoc_helper
@@ -28,34 +30,59 @@ class Jet:
             yield next(self.iter)
 
 
+@functools.cache
+def rock_array(kind: int) -> np.ndarray:
+    match (kind):
+        case 0:
+            return np.array([[1, 1, 1, 1]])
+        case 1:
+            return np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+        case 2:
+            return np.array([[1, 1, 1], [0, 0, 1], [0, 0, 1]])
+        case 3:
+            return np.ones((4, 1), int)
+        case 4:
+            return np.ones((2, 2), int)
+        case _:
+            raise RuntimeError("rock of invalid kind")
+
+
+@functools.cache
+def rock_width(kind: int) -> int:
+    return rock_array(kind).shape[1]
+
+
+@functools.cache
+def rock_max_x(kind: int, boundry=7) -> int:
+    return boundry - rock_width(kind)
+
+
+@functools.cache
+def rock_shape(kind: int) -> tuple[int, int]:
+    return rock_array(kind).shape
+
+
+@dataclass
 class Rock:
-    def __init__(self, kind: int, pos: Coord):
-        self.kind = kind
-        self.pos = pos
+    kind: int
 
+    @property
     def array(self) -> np.ndarray:
-        match (self.kind):
-            case 0:
-                return np.array([[1, 1, 1, 1]])
-            case 1:
-                return np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
-            case 2:
-                return np.array([[1, 1, 1], [0, 0, 1], [0, 0, 1]])
-            case 3:
-                return np.ones((4, 1), int)
-            case 4:
-                return np.ones((2, 2), int)
-            case _:
-                raise RuntimeError("rock of invalid kind")
+        return rock_array(self.kind)
 
+    @property
     def width(self) -> int:
-        return self.array().shape[1]
+        return rock_width(self.kind)
 
     def max_x(self, boundry=7) -> int:
-        return boundry - self.width()
+        return rock_max_x(kind=self.kind, boundry=boundry)
 
+    @property
     def shape(self) -> tuple[int, int]:
-        return self.array().shape
+        return rock_shape(self.kind)
+
+
+Rocks = [Rock(i) for i in range(5)]
 
 
 class Cave:
@@ -66,19 +93,20 @@ class Cave:
         self.rock_height = 0
         self.rest_rock_count = 0
         self.current_rock = None
+        self.current_rock_pos = None
 
     def extend(self, n: int = 3):
         self.array = np.append(self.array, np.zeros((n, self.width), int), axis=0)
 
     def make_next_rock(self):
-        rock_pos = (2, self.rock_height + 3)
+        self.current_rock_pos = (self.rock_height + 3, 2)
         rock_kind = self.rest_rock_count % 5
 
-        self.current_rock = Rock(kind=rock_kind, pos=rock_pos)
+        self.current_rock = Rocks[rock_kind]
         return self.current_rock
 
     def blow_rock(self, jet_direction: str):
-        x, y = self.current_rock.pos
+        y, x = self.current_rock_pos
 
         match jet_direction:
             case "<":
@@ -88,13 +116,13 @@ class Cave:
                 new_x = min(max_x, x + 1)
             case _:
                 raise RuntimeError("invalid jet direction")
-        self.current_rock.pos = (new_x, y)
+        self.current_rock_pos = (y, new_x)
 
     def rock_fall(self):
-        x, y = self.current_rock.pos
+        y, x = self.current_rock_pos
         if y <= 0:
             raise RockComeToRest
-        self.current_rock.pos = x, y - 1
+        self.current_rock_pos = y - 1, x
 
     # def update_rock_height(self):
 
@@ -105,16 +133,11 @@ class Cave:
                 self.rock_fall()
         except RockComeToRest:
             self.extend()
-            x0, y0 = self.current_rock.pos
-            print(x0, y0, "<--")
-            print(self.current_rock.array(), "<---")
-            print(self.array[0:4, :], "<---")
+            y0, x0 = self.current_rock_pos
 
-            dy, dx = self.current_rock.shape()
-            print(dx, dy, "<- dx, dy")
-            self.array[y0 : y0 + dy, x0 : x0 + dx] = self.current_rock.array()
+            dy, dx = self.current_rock.shape
+            self.array[y0 : y0 + dy, x0 : x0 + dx] = self.current_rock.array
 
-            print(self.array, "<--- this array")
             cave_height = self.array.shape[0]
             self.rock_height = next(
                 y + 1
