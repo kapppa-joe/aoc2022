@@ -176,3 +176,27 @@ def test_simulate_second_rock_fall(cave):
         [0, 0, 0, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
+
+
+def test_simulate_third_rock_fall(cave):
+    for _ in range(2):
+        cave.make_next_rock()
+        cave.fall_until_rock_rest()
+
+    rock = cave.make_next_rock()
+    assert rock.kind == 2
+
+    cave.fall_until_rock_rest()
+    # assert cave.rock_tower_height == 6
+    assert cave.rest_rock_count == 3
+    print(str(cave.array.tolist()))
+    assert cave.array.tolist() == [
+        [0, 0, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0],
+        [1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]

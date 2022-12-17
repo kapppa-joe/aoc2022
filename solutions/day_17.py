@@ -112,7 +112,7 @@ class Cave:
         self.current_rock = Rocks[rock_kind]
         return self.current_rock
 
-    def blow_rock(self, jet_direction: str):
+    def blow_rock(self, jet_direction: str, handle_collision=True):
         y, x = self.current_rock_pos
 
         match jet_direction:
@@ -123,19 +123,22 @@ class Cave:
                 new_x = min(max_x, x + 1)
             case _:
                 raise RuntimeError("invalid jet direction")
+
+        if handle_collision and self.current_rock_will_collide(pos=(y, new_x)):
+            return
+
         self.current_rock_pos = (y, new_x)
+
+    def current_rock_will_collide(self, pos: Coord) -> bool:
+        area_to_occupy = self.select_area_by_rock_shape(
+            pos=pos, kind=self.current_rock.kind
+        )
+        return (self.current_rock.array & area_to_occupy).any()
 
     def rock_fall(self, handle_collision=True):
         y, x = self.current_rock_pos
         if handle_collision:
-            # print(y, x, "<- y, x")
-            # print(self.array)
-            area_to_occupy_in_next_tick = self.select_area_by_rock_shape(
-                pos=(y - 1, x), kind=self.current_rock.kind
-            )
-            # print(area_to_occupy_in_next_tick, "<--- this")
-            # print(self.current_rock.array == area_to_occupy_in_next_tick, "<--- this")
-            if (self.current_rock.array == area_to_occupy_in_next_tick).any():
+            if self.current_rock_will_collide(pos=(y - 1, x)):
                 raise RockComeToRest
         if y <= 0:
             raise RockComeToRest
@@ -166,7 +169,7 @@ class Cave:
     def fall_until_rock_rest(self) -> bool:
         try:
             for jet_direction in self.jet.take(3):
-                self.blow_rock(jet_direction)
+                self.blow_rock(jet_direction=jet_direction, handle_collision=False)
                 self.rock_fall(handle_collision=False)
             for jet_direction in self.jet.iter:
                 self.blow_rock(jet_direction)
