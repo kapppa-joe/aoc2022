@@ -1,8 +1,8 @@
-import numpy as np
-from dataclasses import dataclass
 import itertools
 import functools
-from typing import Iterable
+from typing import Iterable, Optional
+from dataclasses import dataclass
+import numpy as np
 
 import aoc_helper
 
@@ -21,12 +21,13 @@ class Jet:
         self.iter = itertools.cycle(pattern)
 
     def take(self, n: int) -> Iterable[str]:
-        self.counter += n
+        self.counter = (self.counter + n) % len(self.pattern)
+
         return itertools.islice(self.iter, n)
 
     def __iter__(self):
         while True:
-            self.counter += 1
+            self.counter = (self.counter + 1) % len(self.pattern)
             yield next(self.iter)
 
 
@@ -94,22 +95,19 @@ class Cave:
         self.rest_rock_count = 0
         self.current_rock = None
         self.current_rock_pos = None
+        self.pattern_seen = {}
 
     def extend(self, n: int = 3):
         self.array = np.append(self.array, np.zeros((n, self.width), int), axis=0)
 
     def make_next_rock(self):
-        cave_height_needed = (self.rock_tower_height + 4) - self.cave_height
-        if cave_height_needed > 0:
-            self.extend(cave_height_needed)
-
         self.current_rock_pos = (self.rock_tower_height + 3, 2)
         rock_kind = self.rest_rock_count % 5
 
         self.current_rock = Rocks[rock_kind]
         return self.current_rock
 
-    def blow_rock(self, jet_direction: str, handle_collision=True):
+    def blow_rock(self, jet_direction: str):
         y, x = self.current_rock_pos
 
         match jet_direction:
@@ -121,7 +119,7 @@ class Cave:
             case _:
                 raise RuntimeError("invalid jet direction")
 
-        if handle_collision and self.current_rock_will_collide(pos=(y, new_x)):
+        if self.current_rock_will_collide(pos=(y, new_x)):
             return
 
         self.current_rock_pos = (y, new_x)
@@ -133,14 +131,17 @@ class Cave:
         area_to_occupy = self.select_area_by_rock_shape(
             pos=pos, kind=self.current_rock.kind
         )
+
+        # if upper area don't have empty rows, only compare with overlapping part of raw (as upper area must be empty)
+        if area_to_occupy.shape != self.current_rock.array.shape:
+            a, b = area_to_occupy.shape
+            return (self.current_rock.array[:a] & area_to_occupy).any()
+
         return (self.current_rock.array & area_to_occupy).any()
 
-    def rock_fall(self, handle_collision=True):
+    def rock_fall(self):
         y, x = self.current_rock_pos
-        if handle_collision:
-            if self.current_rock_will_collide(pos=(y - 1, x)):
-                raise RockComeToRest
-        if y <= 0:
+        if y <= 0 or self.current_rock_will_collide(pos=(y - 1, x)):
             raise RockComeToRest
         self.current_rock_pos = y - 1, x
 
@@ -156,6 +157,11 @@ class Cave:
     def handle_rock_rest(self):
         y0, x0 = self.current_rock_pos
         dy, dx = self.current_rock.shape
+
+        cave_height_needed = (y0 + dy) - self.cave_height + 1
+        if cave_height_needed > 0:
+            self.extend(cave_height_needed)
+
         self.array[y0 : y0 + dy, x0 : x0 + dx] |= self.current_rock.array
 
         self.update_rock_tower_height()
@@ -168,9 +174,6 @@ class Cave:
 
     def fall_until_rock_rest(self) -> bool:
         try:
-            for jet_direction in self.jet.take(3):
-                self.blow_rock(jet_direction=jet_direction, handle_collision=False)
-                self.rock_fall(handle_collision=False)
             for jet_direction in self.jet.iter:
                 self.blow_rock(jet_direction)
                 self.rock_fall()
@@ -182,9 +185,46 @@ class Cave:
     def simulate_rock_fall(self, number_of_rocks: int):
         for _ in range(number_of_rocks):
             self.make_next_rock()
-            res = self.fall_until_rock_rest()
-            if res != True:
-                raise RuntimeError("Error encountered")
+            self.fall_until_rock_rest()
+
+    def find_tower_height_by_repeat_pattern(self, number_of_rocks: int) -> int:
+        for _ in range(number_of_rocks):
+            self.make_next_rock()
+            self.fall_until_rock_rest()
+
+            pattern_found = self.detect_repeat_pattern()
+            if pattern_found:
+                (rock0, height0, rock1, height1) = pattern_found
+                if (number_of_rocks - rock0) % (rock1 - rock0) == 0:
+                    repeat_pattern_height = height1 - height0
+                    times_to_repeat = (number_of_rocks - rock0) // (rock1 - rock0)
+                    return height0 + times_to_repeat * repeat_pattern_height
+
+        # if can't find pattern before reaching goal
+        return self.rock_tower_height
+
+    def detect_repeat_pattern(self) -> Optional[tuple[int, int, int, int]]:
+        if self.rock_tower_height <= 20:
+            return None
+
+        height = self.rock_tower_height
+
+        upper_block_shape = tuple(np.packbits(self.array[height - 20 : height]))
+
+        key = tuple([*upper_block_shape, self.jet.counter, self.current_rock.kind])
+        value = (self.rest_rock_count, self.rock_tower_height)
+
+        if key in self.pattern_seen:
+            prev_rock_count, prev_height = self.pattern_seen[key]
+            return (
+                prev_rock_count,
+                prev_height,
+                self.rest_rock_count,
+                self.rock_tower_height,
+            )
+
+        self.pattern_seen[key] = value
+        return None
 
 
 def parse_raw(raw: str) -> Cave:
@@ -197,8 +237,8 @@ def part_one(cave: Cave) -> int:
     return cave.rock_tower_height
 
 
-def part_two(data):
-    ...
+def part_two(cave: Cave) -> int:
+    return cave.find_tower_height_by_repeat_pattern(number_of_rocks=1000000000000)
 
 
 if __name__ == "__main__":

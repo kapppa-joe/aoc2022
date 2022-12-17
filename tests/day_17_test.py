@@ -29,7 +29,7 @@ def test_jet():
     try:
         for jet_direction in jet2:
             assert jet_direction == expected[i]
-            assert jet2.counter == i + 1
+            assert jet2.counter == (i + 1) % len(example)
             i += 1
             if i >= len(expected):
                 raise RockComeToRest
@@ -108,8 +108,6 @@ def test_simulate_first_rock_fall(cave):
     assert cave.rest_rock_count == 1
     assert cave.array.tolist() == [
         [0, 0, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
 
@@ -197,7 +195,6 @@ def test_simulate_third_rock_fall(cave):
         [0, 0, 1, 0, 0, 0, 0],
         [0, 0, 1, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
     ]
 
 
@@ -229,5 +226,31 @@ def test_part_one():
 
     cave = parse_raw(example)
     actual = part_one(cave=cave)
+
+    assert actual == expected
+
+
+def test_find_tower_height_by_repeat_pattern(cave):
+    expected = 3068
+
+    cave = parse_raw(example)
+    actual = cave.find_tower_height_by_repeat_pattern(number_of_rocks=2022)
+
+    assert actual == expected
+
+    # part two
+    expected = 1514285714288
+
+    cave = parse_raw(example)
+    actual = cave.find_tower_height_by_repeat_pattern(number_of_rocks=1000000000000)
+
+    assert actual == expected
+
+
+def test_part_two():
+    expected = 1514285714288
+
+    cave = parse_raw(example)
+    actual = part_two(cave)
 
     assert actual == expected
