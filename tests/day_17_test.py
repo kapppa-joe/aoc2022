@@ -38,9 +38,11 @@ def test_jet():
 
     take_5_more = jet2.take(5)
     assert "".join(take_5_more) == example[5:10]
+    assert jet2.counter == 10
 
     take_45_more_again = jet2.take(45)
     assert "".join(take_45_more_again) == example[10:] + example[0:15]
+    assert jet2.counter == 15
 
 
 @pytest.fixture(name="cave")
@@ -227,6 +229,37 @@ def test_part_one():
     cave = parse_raw(example)
     actual = part_one(cave=cave)
 
+    assert actual == expected
+
+
+def test_capture_upper_rows_shape(cave: Cave):
+    cave.array = np.array(
+        # actual tower is UPSIDE DOWN. last row here is the top of tower.
+        [
+            [0, 0, 0, 1, 0, 0, 1],
+            [1, 0, 0, 1, 0, 1, 1],
+            # 6th col got stone at below row. upwards should be omitted.
+            [0, 1, 0, 0, 0, 1, 0],  # 0th bit.
+            [1, 0, 0, 1, 0, 0, 1],
+            [0, 0, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 0, 1, 0, 0, 1],
+            [0, 0, 1, 1, 0, 0, 1],
+            [1, 0, 0, 1, 0, 0, 1],
+            [0, 0, 0, 0, 1, 0, 1],  # 7th bit. 0~7 are packed together.
+            [1, 1, 1, 0, 1, 0, 1],
+            [0, 0, 0, 0, 1, 0, 1],  # 9th bit . this is the top of tower
+        ]
+    )
+
+    cave.update_rock_tower_height()
+
+    # fmt: off
+    expected = [
+        0b1001010, 0b10001000, 0b100100, 0b1101110, 1, 0b10000000, 0b1011111, #0~7 bit . each bit is 8 floor of a column 
+        0b10000000, 0b10000000, 0b10000000, 0, 0b11000000, 0, 0b11000000] #8~9 bits
+    # fmt: on
+    actual = cave.capture_upper_rows_shape()
     assert actual == expected
 
 

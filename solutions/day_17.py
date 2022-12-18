@@ -1,7 +1,7 @@
-import itertools
-import functools
 from typing import Iterable, Optional
 from dataclasses import dataclass
+import itertools
+import functools
 import numpy as np
 
 import aoc_helper
@@ -97,7 +97,7 @@ class Cave:
         self.current_rock_pos = None
         self.pattern_seen = {}
 
-    def extend(self, n: int = 3):
+    def extend_upper(self, n: int = 1):
         self.array = np.append(self.array, np.zeros((n, self.width), int), axis=0)
 
     def make_next_rock(self):
@@ -119,12 +119,18 @@ class Cave:
             case _:
                 raise RuntimeError("invalid jet direction")
 
-        if self.current_rock_will_collide(pos=(y, new_x)):
+        if self.detect_collision(pos=(y, new_x)):
             return
 
         self.current_rock_pos = (y, new_x)
 
-    def current_rock_will_collide(self, pos: Coord) -> bool:
+    def rock_fall(self):
+        y, x = self.current_rock_pos
+        if y <= 0 or self.detect_collision(pos=(y - 1, x)):
+            raise RockComeToRest
+        self.current_rock_pos = y - 1, x
+
+    def detect_collision(self, pos: Coord) -> bool:
         if pos[0] < 0 or pos[1] < 0:
             return True
 
@@ -132,18 +138,12 @@ class Cave:
             pos=pos, kind=self.current_rock.kind
         )
 
-        # if upper area don't have empty rows, only compare with overlapping part of raw (as upper area must be empty)
+        # if upper area don't have enough empty rows, only compare with overlapping part of raw (as upper area must be empty)
         if area_to_occupy.shape != self.current_rock.array.shape:
             a, b = area_to_occupy.shape
             return (self.current_rock.array[:a] & area_to_occupy).any()
 
         return (self.current_rock.array & area_to_occupy).any()
-
-    def rock_fall(self):
-        y, x = self.current_rock_pos
-        if y <= 0 or self.current_rock_will_collide(pos=(y - 1, x)):
-            raise RockComeToRest
-        self.current_rock_pos = y - 1, x
 
     @property
     def cave_height(self):
@@ -160,7 +160,7 @@ class Cave:
 
         cave_height_needed = (y0 + dy) - self.cave_height + 1
         if cave_height_needed > 0:
-            self.extend(cave_height_needed)
+            self.extend_upper(cave_height_needed)
 
         self.array[y0 : y0 + dy, x0 : x0 + dx] |= self.current_rock.array
 
@@ -203,15 +203,28 @@ class Cave:
         # if can't find pattern before reaching goal
         return self.rock_tower_height
 
+    def capture_upper_rows_shape(self) -> Optional[list[int]]:
+        # capture the pattern of upper rows as 8bit numbers. only take the rows until all columns get at least one stone.
+        height = self.rock_tower_height
+        for rows_to_take in range(1, height + 1):
+            upper_rows_arr = self.array[height - rows_to_take : height]
+            columns_with_nonzero = np.nonzero(upper_rows_arr)[1]
+            if len(set(columns_with_nonzero)) == self.width:
+                # if all columns got at least one stone at this depth, encode the current pattern and return
+                return np.packbits(upper_rows_arr, 0).flatten().tolist()
+
+        return None
+
     def detect_repeat_pattern(self) -> Optional[tuple[int, int, int, int]]:
-        if self.rock_tower_height <= 20:
+        # try detect a repeated pattern of upper rows shape, rock kind and current jet counter.
+        if self.rock_tower_height <= 10:
             return None
 
-        height = self.rock_tower_height
+        upper_rows_encoded = self.capture_upper_rows_shape()
+        if upper_rows_encoded is None:
+            return None
 
-        upper_block_shape = tuple(np.packbits(self.array[height - 20 : height]))
-
-        key = tuple([*upper_block_shape, self.jet.counter, self.current_rock.kind])
+        key = tuple([*upper_rows_encoded, self.jet.counter, self.current_rock.kind])
         value = (self.rest_rock_count, self.rock_tower_height)
 
         if key in self.pattern_seen:
@@ -226,6 +239,15 @@ class Cave:
         self.pattern_seen[key] = value
         return None
 
+    def visualise(self):
+        floor = f"+{'-' * self.width}+"
+        rows = [
+            "".join("#" if cell else "." for cell in row)
+            for row in reversed(self.array)
+        ]
+        with_left_right_walls = [f"|{row}|" for row in rows]
+        return "\n".join(with_left_right_walls + [floor])
+
 
 def parse_raw(raw: str) -> Cave:
     jet = Jet(pattern=raw)
@@ -238,7 +260,10 @@ def part_one(cave: Cave) -> int:
 
 
 def part_two(cave: Cave) -> int:
-    return cave.find_tower_height_by_repeat_pattern(number_of_rocks=1000000000000)
+    super_annoying_elephants_demand = 1000000000000
+    return cave.find_tower_height_by_repeat_pattern(
+        number_of_rocks=super_annoying_elephants_demand
+    )
 
 
 if __name__ == "__main__":
