@@ -1,15 +1,14 @@
-from collections import defaultdict
 from solutions.day_18 import (
     parse_raw,
     is_touching,
     part_one,
     DisjointSets,
     find_boundries,
-    all_spaces,
+    all_cubes_in_space,
     is_at_boundry,
-    group_cubes,
+    classify_cubes,
     all_touching_pairs,
-    object_surface_area,
+    find_surface_area,
     part_two,
 )
 
@@ -109,11 +108,11 @@ def test_find_boundries():
     assert actual == expected
 
 
-def test_all_spaces():
+def test_all_cubes_in_space():
     lava_cubes = parse_raw(example)
     boundries = find_boundries(lava_cubes)
 
-    actual = list(all_spaces(boundries=boundries))
+    actual = list(all_cubes_in_space(boundries=boundries))
     assert len(actual) == 3 * 3 * 6
     assert (1, 1, 1) in actual
     assert (1, 1, 6) in actual
@@ -168,9 +167,9 @@ def test_all_touching_pairs():
         assert is_touching(*pairs) == True
 
 
-def test_group_cubes():
+def test_classify_cubes():
     lava_cubes = parse_raw(example)
-    actual = group_cubes(lava_cubes)
+    actual = classify_cubes(lava_cubes)
 
     assert actual["lava_cubes"] == set(lava_cubes)
 
@@ -179,7 +178,7 @@ def test_group_cubes():
     assert len(actual["exposed_air"]) == 3 * 3 * 6 - 13 - 1
 
 
-def test_object_surface_area():
+def test_find_surface_area():
     test_cases = [
         # fmt: off
         [set([(1,1,1)]), 6],
@@ -191,7 +190,7 @@ def test_object_surface_area():
     ]
 
     for groups, expected in test_cases:
-        actual = object_surface_area(cubes=groups)
+        actual = find_surface_area(cubes=groups)
         assert actual == expected
 
 
