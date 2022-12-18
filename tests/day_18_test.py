@@ -92,15 +92,10 @@ def test_disjoint_sets():
     ds.union(6, 9)
     ds.union(8, 10)
     ds.union(4, 10)
-    group_dict = defaultdict(lambda: set())
-
     for i in range(1, 11):
-        root = ds.find(i)
-        group_dict[root].add(i)
+        ds.find(i)
 
-    assert len(group_dict) == 3
-
-    groups = list(group_dict.values())
+    groups = list(ds.list_groups())
     assert {2, 3, 5, 7} in groups
     assert {1} in groups
     assert {4, 6, 8, 9, 10} in groups
@@ -179,10 +174,9 @@ def test_group_cubes():
 
     assert actual["lava_cubes"] == set(lava_cubes)
 
-    assert isinstance(actual["trapped_air_groups"], dict)
-    assert set([(2, 2, 5)]) in actual["trapped_air_groups"].values()
+    assert actual["trapped_air"] == set([(2, 2, 5)])
 
-    assert len(actual["exposed"]) == 3 * 3 * 6 - 13 - 1
+    assert len(actual["exposed_air"]) == 3 * 3 * 6 - 13 - 1
 
 
 def test_object_surface_area():
@@ -197,7 +191,7 @@ def test_object_surface_area():
     ]
 
     for groups, expected in test_cases:
-        actual = object_surface_area(group=groups)
+        actual = object_surface_area(cubes=groups)
         assert actual == expected
 
 

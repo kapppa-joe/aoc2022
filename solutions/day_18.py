@@ -1,5 +1,5 @@
-import itertools, functools, numpy as np
-from typing import Iterable
+import itertools
+from typing import Iterable, Iterator
 from collections import defaultdict
 
 import aoc_helper
@@ -20,27 +20,46 @@ def is_touching(cube_a: Cube, cube_b: Cube) -> bool:
     return sorted(diff_per_axes) == [0, 0, 1]
 
 
+def object_surface_area(cubes: Iterable[Cube]) -> int:
+    possible_pairs = itertools.combinations(cubes, r=2)
+    touching_pairs = sum(is_touching(a, b) for a, b in possible_pairs)
+    total_faces = len(cubes) * 6
+
+    return total_faces - touching_pairs * 2
+
+
 def part_one(lava_cubes: list[Cube]) -> int:
     return object_surface_area(lava_cubes)
 
 
 class DisjointSets:
     def __init__(self):
-        self.parents = defaultdict(lambda: -1)
+        self._parent = {}
+
+    def __contains__(self, cube: Cube) -> bool:
+        return cube in self._parent
+
+    def list_groups(self) -> Iterator[tuple[Cube, set[Cube]]]:
+        group_dict: dict[Cube, set[Cube]] = defaultdict(set)
+        for member in self._parent:
+            group_dict[self.find(member)].add(member)
+        yield from group_dict.values()
 
     def find(self, cube: Cube) -> Cube:
-        if self.parents[cube] == -1:
-            return cube
-        return self.find(self.parents[cube])
+        node = cube
+        if node not in self._parent:
+            self._parent[node] = node
+
+        while self._parent[node] != node:
+            self._parent[node] = self._parent[self._parent[node]]
+            node = self._parent[node]
+        return node
 
     def union(self, a: Cube, b: Cube):
         root_a = self.find(a)
         root_b = self.find(b)
-        if root_a == root_b:
-            return
-        self.parents[root_a] = root_b
-
-    def clean_up():
+        if root_a != root_b:
+            self._parent[root_a] = root_b
 
 
 def find_boundries(lava_cubes: list[Cube]) -> Boundries:
@@ -52,12 +71,12 @@ def is_at_boundry(cube: Cube, boundries: Boundries) -> bool:
     return any(cube[axis] in boundries[axis] for axis in [0, 1, 2])
 
 
-def all_spaces(boundries: Boundries) -> Iterable[Cube]:
+def all_spaces(boundries: Boundries) -> Iterator[Cube]:
     as_ranges = map(lambda minmax: range(minmax[0], minmax[1] + 1), boundries)
     return itertools.product(*as_ranges)
 
 
-def all_touching_pairs(boundries: Boundries) -> Iterable[frozenset[Cube, Cube]]:
+def all_touching_pairs(boundries: Boundries) -> Iterator[frozenset[Cube, Cube]]:
     upper_boundries = [upper for _, upper in boundries]
     for cube in all_spaces(boundries=boundries):
         x, y, z = cube
@@ -86,43 +105,28 @@ def group_cubes(lava_cubes: list[Cube]) -> dict:
     for cube_a, cube_b in all_touching_pairs(boundries=boundries):
         if not_lava(cube_a) and not_lava(cube_b):
             ds.union(cube_b, cube_a)
+        ds.find(cube_a)
 
-    group_dict = defaultdict(lambda: set())
-    trapped_air_groups = defaultdict(lambda: set())
-    group_dict["trapped_air_groups"] = trapped_air_groups
+    result = defaultdict(set)
+    trapped_air_groups = defaultdict(set)
+    result["trapped_air_groups"] = trapped_air_groups
 
-    confirmed_exposed_cube = next(
-        cube for cube in all_spaces(boundries=boundries) if confirmed_expose(cube)
-    )
-    for cube in all_spaces(boundries=boundries):
-        cube_root = ds.find(cube)
-        if cube_root == lava_root:
-            group_dict["lava_cubes"].add(cube)
-        elif cube_root == ds.find(confirmed_exposed_cube):
-            group_dict["exposed"].add(cube)
+    for group in ds.list_groups():
+        if any(cube in lava_set for cube in group):
+            result["lava_cubes"].update(group)
+        elif any(confirmed_expose(cube) for cube in group):
+            result["exposed_air"].update(group)
         else:
-            trapped_air_groups[cube_root].add(cube)
+            result["trapped_air"].update(group)
 
-    return group_dict
-
-
-def object_surface_area(group: Iterable[Cube]) -> int:
-    possible_pairs = itertools.combinations(group, r=2)
-    touching_pairs = sum(is_touching(a, b) for a, b in possible_pairs)
-    total_faces = len(group) * 6
-
-    return total_faces - touching_pairs * 2
+    return result
 
 
 def part_two(lava_cubes: list[Cube]) -> int:
     groups = group_cubes(lava_cubes=lava_cubes)
-    lava_surface = object_surface_area(lava_cubes)
-    trapped_air_groups = groups["trapped_air_groups"].values()
-    deduction = sum(
-        object_surface_area(trapped_air) for trapped_air in trapped_air_groups
-    )
+    trapped_air = groups["trapped_air"]
 
-    return lava_surface - deduction
+    return object_surface_area(lava_cubes) - object_surface_area(trapped_air)
 
 
 if __name__ == "__main__":
