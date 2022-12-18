@@ -80,13 +80,13 @@ class ValveNetwork:
             if remaining_time <= distance + 1:
                 # skip if no benefit trying open that valve
                 continue
-            total_gain = flow_rate * (remaining_time - distance - 1)
+            newly_released = flow_rate * (remaining_time - distance - 1)
             new_state = State(
                 current_valve=target_valve,
                 remaining_time=remaining_time - distance - 1,
                 valves_opened=valves_opened.union([target_valve]),
             )
-            yield total_gain + self.maximized_release(state=new_state)
+            yield newly_released + self.maximized_release(state=new_state)
 
         # if no way to open a new valve in remaining time, return 0
         yield 0
@@ -104,12 +104,12 @@ class ValveNetwork:
         remaining_time = state.remaining_time
         valves_opened = state.valves_opened
 
-        # add curr route to memo here
+        # add current route to memo
         combined_solution = {valves_opened: 0}
 
         for target_valve, flow_rate in self.untapped_valves(valves_opened).items():
             distance = self.dist[(current_valve, target_valve)]
-            if remaining_time < distance:
+            if remaining_time < distance + 1:
                 continue
             newly_released = flow_rate * (remaining_time - distance - 1)
 
