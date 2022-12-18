@@ -7,6 +7,9 @@ test:
 format:
 	poetry run black .
 
+format-check:
+	poetry run black --check .
+
 lint:
 	poetry run pylint solutions tests
 
