@@ -1,6 +1,6 @@
-from typing import Callable
-import re
 import math
+import re
+from typing import Callable
 
 import aoc_helper
 

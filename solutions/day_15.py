@@ -1,6 +1,6 @@
-from typing import Optional, Iterable
-import re
 import functools
+import re
+from typing import Iterable, Optional
 
 import aoc_helper
 

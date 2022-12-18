@@ -1,10 +1,6 @@
 import pytest
-from solutions.day_16 import (
-    parse_raw,
-    part_one,
-    part_two,
-    State,
-)
+
+from solutions.day_16 import State, parse_raw, part_one, part_two
 
 example = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA

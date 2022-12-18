@@ -1,6 +1,6 @@
 import itertools
-from typing import Iterable, Iterator
 from collections import defaultdict
+from typing import Iterable, Iterator
 
 import aoc_helper
 

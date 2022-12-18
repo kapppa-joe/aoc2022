@@ -1,11 +1,11 @@
-import re
 import functools
 import itertools
-from typing import Iterable
+import re
 from dataclasses import dataclass
-import numpy as np
+from typing import Iterable
 
 import aoc_helper
+import numpy as np
 
 ValveSet = frozenset[str]
 

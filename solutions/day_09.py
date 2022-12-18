@@ -1,5 +1,5 @@
-from typing import TypeAlias
 from itertools import accumulate
+from typing import TypeAlias
 
 import aoc_helper
 

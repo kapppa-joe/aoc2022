@@ -1,5 +1,6 @@
 import re
 from functools import cached_property
+
 import aoc_helper
 
 

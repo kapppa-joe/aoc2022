@@ -1,10 +1,10 @@
-from typing import Iterable, Optional
-from dataclasses import dataclass
-import itertools
 import functools
-import numpy as np
+import itertools
+from dataclasses import dataclass
+from typing import Iterable, Optional
 
 import aoc_helper
+import numpy as np
 
 Coord = tuple[int, int]
 

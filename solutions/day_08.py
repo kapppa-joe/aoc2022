@@ -1,6 +1,7 @@
+import itertools
+
 import aoc_helper
 import numpy as np
-import itertools
 
 
 def parse_raw(raw: str) -> np.ndarray:

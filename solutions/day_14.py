@@ -1,5 +1,6 @@
-from typing import Optional, Callable, cast
 import itertools
+from typing import Callable, Optional, cast
+
 import aoc_helper
 
 Coord = tuple[int, int]

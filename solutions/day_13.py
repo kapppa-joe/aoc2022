@@ -1,8 +1,8 @@
-from typing import TypeAlias
-from itertools import zip_longest
-from functools import cache, cmp_to_key
-import re
 import json
+import re
+from functools import cache, cmp_to_key
+from itertools import zip_longest
+from typing import TypeAlias
 
 import aoc_helper
 

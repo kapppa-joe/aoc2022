@@ -1,4 +1,4 @@
-from typing import TypeAlias, Callable
+from typing import Callable, TypeAlias
 
 import aoc_helper
 
