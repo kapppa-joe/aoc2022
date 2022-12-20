@@ -77,24 +77,6 @@ def test_get_bot_cost(factory):
         assert actual == expected
 
 
-# old version. comment out.
-# def test_can_make_bot(factory):
-#     test_cases_blueprint_1 = [
-#         [State(), []],
-#         [State(ore=2), ['clay_bot']],
-#         [State(ore=4), ['ore_bot','clay_bot']],
-#         [State(ore=5, clay=13), ['ore_bot','clay_bot']],
-#         [State(ore=4, clay=14), ['ore_bot','clay_bot', 'obsidian_bot']],
-#         [State(ore=3, clay=14), ['clay_bot', 'obsidian_bot']],
-#         [State(ore=4, clay=14, obsidian=7), ['ore_bot','clay_bot', 'obsidian_bot', 'geode_bot']],
-#         [State(ore=10, obsidian=10), ['ore_bot','clay_bot', 'geode_bot']],
-#     ]
-
-#     for input_state, expected in test_cases_blueprint_1:
-#         actual = factory.can_make_bot(1, input_state)
-#         assert sorted(actual) == sorted(expected)
-
-
 def test_can_make_bot(factory):
 
     test_cases_blueprint_1 = [
@@ -122,19 +104,6 @@ def test_can_make_bot(factory):
 
         assert sorted(actual) == sorted(expected)
 
-
-# def test_could_make_bot_last_turn(factory):
-#     blueprint_num = 1
-
-#     test_cases = [
-#         [State(ore=2, ore_bot=1), 'clay_bot', False],
-#         [State(ore=3, ore_bot=1), 'clay_bot', True]
-#     ]
-
-#     for state, bot_type, expected in test_cases:
-#         actual = factory.could_make_bot_last_turn(
-#             blueprint_num=blueprint_num, input_state=state, bot_type=bot_type)
-#         assert actual == expected
 
 
 def test_prune_inferior_state(factory):
@@ -180,36 +149,6 @@ def test_run_n_turns_basic(factory):
     assert actual == expected
 
 
-# def test_dfs_basic(factory):
-#     expected = 1
-#     initial_state = State(ore_bot=1)
-#     actual = factory.dfs(blueprint_num=1, state=initial_state, minutes = 19)
-
-#     assert actual == expected
-
-
-# def test_dfs_blueprint_1_turn_20(factory):
-#     expected = 2
-#     initial_state = State(ore_bot=1)
-#     actual = factory.dfs(blueprint_num=1, state=initial_state, minutes = 20)
-
-#     assert actual == expected
-
-
-# def test_dfs_blueprint_1_turn_21(factory):
-#     expected = 3
-#     initial_state = State(ore_bot=1)
-#     actual = factory.dfs(blueprint_num=1, state=initial_state, minutes = 21)
-
-#     assert actual == expected
-
-
-# def test_dfs_blueprint_1_turn_24(factory):
-#     expected = 9
-#     initial_state = State(ore_bot=1)
-#     actual = factory.dfs(blueprint_num=1, state=initial_state, minutes = 24)
-
-#     assert actual == expected
 
 
 def test_run_n_turns_example_run_down(factory):
@@ -249,7 +188,9 @@ def test_run_n_turns_example_run_down_part_2(factory):
     example_rundown = [
         [4, State(ore_bot=1, ore=4)],
         [6, State(ore_bot=2, ore=3)],
-        [12, State(ore_bot=2, clay_bot=2, ore=3, clay=15)],
+        [12, State(ore_bot=2, clay_bot=6, ore=3, clay=15)],
+        [20, State(ore_bot=2, clay_bot=7, obsidian_bot=4, geode_bot=1, ore=3, clay=14, obsidian=7)],
+        [30, State(ore_bot=2, clay_bot=7, obsidian_bot=5, geode_bot=8, ore=6, clay=70, obsidian=7, geode=39)],
     ]
     initial_state = State(ore_bot=1)
 
@@ -274,14 +215,14 @@ def test_best_geode_part_two(factory):
     assert factory.best_geode_for_blueprint(1, 32) == 56
     assert factory.best_geode_for_blueprint(2, 32) == 62
 
-def test_max_resource_needed(factory):
+def test_max_resource_use_per_day(factory):
     test_cases = [
         [1, State(ore=4, clay=14, obsidian=7)],
         [2, State(ore=3, clay=8, obsidian=12)],
     ]
 
     for blueprint_num, expected in test_cases:
-        actual = factory.max_resource_needed(blueprint_num=blueprint_num)
+        actual = factory.max_resource_use_per_day(blueprint_num=blueprint_num)
         assert actual == expected
 
 
@@ -290,14 +231,14 @@ def test_cap_resource(factory):
         [
             1,
             State(geode=10, ore=99, clay=99, obsidian=99, clay_bot=3),
-            State(geode=10, ore=6, clay=16, obsidian=9, clay_bot=3),
+            State(geode=10, ore=8, clay=28, obsidian=14, clay_bot=3),
         ],
         [
             2,
             State(geode=10, ore=99, clay=99, obsidian=99, ore_bot=3),
-            State(geode=10, ore=5, clay=10, obsidian=14, ore_bot=3),
+            State(geode=10, ore=6, clay=16, obsidian=24, ore_bot=3),
         ],
-        [1, State(ore_bot=1, ore=2), State(ore_bot=1, ore=2)],
+        [1, State(ore_bot=1, ore=2, geode_bot=1, obsidian_bot=1), State(ore_bot=1, ore=2, geode_bot=1, obsidian_bot=1)],
     ]
 
     for blueprint_num, state, expected in test_cases:
