@@ -162,3 +162,4 @@ cython_debug/
 .vscode
 .testmondata
 poetry.lock
+puzzle/*

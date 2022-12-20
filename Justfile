@@ -15,5 +15,10 @@ lint:
 
 start_today:
 	cp -n solutions/day_xx.py solutions/day_$(date +"%d").py && touch tests/day_$(date +"%d")_test.py
+	poetry run python fetch_puzzle.py -- today
 
+fetch_today:
+	poetry run python fetch_puzzle.py -- today
 
+fetch:
+	poetry run python fetch_puzzle.py
