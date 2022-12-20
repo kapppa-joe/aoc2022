@@ -1,5 +1,5 @@
 import pytest
-from solutions.day_20 import parse_raw, part_one, part_two, MagicNum
+from solutions.day_20 import parse_raw, part_one, part_two, PartTwoMagicNum
 
 
 example = """1
@@ -42,7 +42,7 @@ def test_rotate_number(box):
 
     list = initial_list[:]
     for i, n in enumerate(initial_list):
-        list = box.rotate_number(token_list=list, index=n, move=n)
+        list = box.rotate_number(token_list=list, token=n, move=n)
         assert list == expected[i]
 
 
@@ -71,10 +71,10 @@ def test_mix_number(box):
         (1, 2, -3, 4, 0, 3, -2),
     ]
 
-    for index in range(7):
-        token_list = box.mix_number(token_list=token_list, index=index)
+    for token in range(7):
+        token_list = box.mix_number(token_list=token_list, token=token)
         unboxed = box.unbox_numbers(token_list=token_list)
-        assert unboxed == expected[index]
+        assert unboxed == expected[token]
 
 
 def test_mix_whole_list(box):
@@ -108,7 +108,7 @@ def in_same_order(list_a, list_b) -> bool:
 
 
 def test_part_two_mix_list(box):
-    box._boxes = tuple(num * MagicNum for num in box._boxes)
+    box._boxes = tuple(num * PartTwoMagicNum for num in box._boxes)
 
     expected = [
         (811589153, 1623178306, -2434767459, 2434767459, -1623178306, 0, 3246356612),

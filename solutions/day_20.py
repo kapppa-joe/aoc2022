@@ -1,27 +1,21 @@
-from typing import Iterable
-import itertools
-
-import aoc_helper
-
-MagicNum = 811589153
-
+PartTwoMagicNum = 811589153
 
 class NumberBoxes:
     def __init__(self, numbers: list[int]):
         self._boxes = tuple(numbers)
         self.len = len(tuple(numbers))
 
-    def __getitem__(self, index: int) -> int:
-        return self._boxes[index]
+    def __getitem__(self, token: int) -> int:
+        return self._boxes[token]
 
     def initial_tokens(self) -> tuple[int]:
         return tuple(range(len(self._boxes)))
 
     def rotate_number(
-        self, token_list: tuple[int], index: int, move: int
+        self, token_list: tuple[int], token: int, move: int
     ) -> tuple[int]:
-        curr_pos = token_list.index(index)
-        next_pos = token_list.index(index) + 1
+        curr_pos = token_list.index(token)
+        next_pos = token_list.index(token) + 1
         next_pos_after_rotate = (next_pos + move) % (self.len - 1)
 
         new_list = token_list[:curr_pos] + token_list[curr_pos + 1 :]
@@ -29,15 +23,15 @@ class NumberBoxes:
         if new_pos < 1:
             new_pos += self.len - 1
 
-        return new_list[:new_pos] + (index,) + new_list[new_pos:]
+        return new_list[:new_pos] + (token,) + new_list[new_pos:]
 
     def unbox_numbers(self, token_list: tuple[int]) -> tuple[int]:
-        return tuple((self._boxes[index] for index in token_list))
+        return tuple((self._boxes[token] for token in token_list))
 
-    def mix_number(self, token_list: tuple[int], index: int) -> tuple[int]:
-        move = self[index]
+    def mix_number(self, token_list: tuple[int], token: int) -> tuple[int]:
+        move = self[token]
         after_rotation = self.rotate_number(
-            token_list=token_list, index=index, move=move
+            token_list=token_list, token=token, move=move
         )
 
         return after_rotation
@@ -46,7 +40,7 @@ class NumberBoxes:
         token_list = self.initial_tokens()
         for _ in range(times):
             for token in range(self.len):
-                token_list = self.mix_number(token_list=token_list, index=token)
+                token_list = self.mix_number(token_list=token_list, token=token)
         return token_list
 
     def nth_after_zero(self, token_list: tuple[int], n: int) -> int:
@@ -71,7 +65,7 @@ def part_one(box: NumberBoxes) -> int:
 
 
 def part_two(box: NumberBoxes) -> int:
-    box._boxes = tuple(num * MagicNum for num in box._boxes)
+    box._boxes = tuple(num * PartTwoMagicNum for num in box._boxes)
     token_list_after_mixed = box.mix_whole_list(times=10)
     return sum(
         box.nth_after_zero(token_list=token_list_after_mixed, n=n)
@@ -83,7 +77,7 @@ if __name__ == "__main__":
 
     day = 20
 
-    raw_data = aoc_helper.fetch(day, 2022)
+    raw_data = open(f'puzzle/day_{day}.txt', 'r').read()
     parsed_data = parse_raw(raw_data)
 
     print(f"part one solution: {part_one(parsed_data)}")
