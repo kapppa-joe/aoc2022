@@ -3,6 +3,8 @@ import itertools
 
 import aoc_helper
 
+MagicNum = 811589153
+
 
 class NumberBoxes:
     def __init__(self, numbers: list[int]):
@@ -12,7 +14,7 @@ class NumberBoxes:
     def __getitem__(self, index: int) -> int:
         return self._boxes[index]
 
-    def initial_index(self) -> tuple[int]:
+    def initial_tokens(self) -> tuple[int]:
         return tuple(range(len(self._boxes)))
 
     def rotate_number(
@@ -40,10 +42,11 @@ class NumberBoxes:
 
         return after_rotation
 
-    def mix_whole_list(self) -> tuple[int]:
-        token_list = self.initial_index()
-        for token in range(self.len):
-            token_list = self.mix_number(token_list=token_list, index=token)
+    def mix_whole_list(self, times=1) -> tuple[int]:
+        token_list = self.initial_tokens()
+        for _ in range(times):
+            for token in range(self.len):
+                token_list = self.mix_number(token_list=token_list, index=token)
         return token_list
 
     def nth_after_zero(self, token_list: tuple[int], n: int) -> int:
@@ -67,8 +70,13 @@ def part_one(box: NumberBoxes) -> int:
     )
 
 
-def part_two(data):
-    ...
+def part_two(box: NumberBoxes) -> int:
+    box._boxes = tuple(num * MagicNum for num in box._boxes)
+    token_list_after_mixed = box.mix_whole_list(times=10)
+    return sum(
+        box.nth_after_zero(token_list=token_list_after_mixed, n=n)
+        for n in [1000, 2000, 3000]
+    )
 
 
 if __name__ == "__main__":
