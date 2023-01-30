@@ -1,5 +1,6 @@
 PartTwoMagicNum = 811589153
 
+
 class NumberBoxes:
     def __init__(self, numbers: list[int]):
         self._boxes = tuple(numbers)
@@ -77,7 +78,7 @@ if __name__ == "__main__":
 
     day = 20
 
-    raw_data = open(f'puzzle/day_{day}.txt', 'r').read()
+    raw_data = open(f"puzzle/day_{day}.txt", "r").read()
     parsed_data = parse_raw(raw_data)
 
     print(f"part one solution: {part_one(parsed_data)}")

@@ -105,7 +105,6 @@ def test_can_make_bot(factory):
         assert sorted(actual) == sorted(expected)
 
 
-
 def test_prune_inferior_state(factory):
     # fmt: off
     input_sets = {
@@ -149,8 +148,6 @@ def test_run_n_turns_basic(factory):
     assert actual == expected
 
 
-
-
 def test_run_n_turns_example_run_down(factory):
     example_rundown = [
         [5, State(ore_bot=1, clay_bot=2, ore=1, clay=2)],
@@ -166,22 +163,107 @@ def test_run_n_turns_example_run_down(factory):
         [15, State(ore_bot=1, clay_bot=4, obsidian_bot=2, ore=1, clay=5, obsidian=4)],
         [16, State(ore_bot=1, clay_bot=4, obsidian_bot=2, ore=2, clay=9, obsidian=6)],
         [17, State(ore_bot=1, clay_bot=4, obsidian_bot=2, ore=3, clay=13, obsidian=8)],
-        [18, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=1, ore=2, clay=17, obsidian=3)],
-        [19, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=1, ore=3, clay=21, obsidian=5, geode=1)],
-        [20, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=1, ore=4, clay=25, obsidian=7, geode=2)],
-        [21, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=2, ore=3, clay=29, obsidian=2, geode=3)],
-        [22, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=2, ore=4, clay=33, obsidian=4, geode=5)],
-        [23, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=2, ore=5, clay=37, obsidian=6, geode=7)],
-        [24, State(ore_bot=1, clay_bot=4, obsidian_bot=2, geode_bot=2, ore=6, clay=41, obsidian=8, geode=9)],
+        [
+            18,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=1,
+                ore=2,
+                clay=17,
+                obsidian=3,
+            ),
+        ],
+        [
+            19,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=1,
+                ore=3,
+                clay=21,
+                obsidian=5,
+                geode=1,
+            ),
+        ],
+        [
+            20,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=1,
+                ore=4,
+                clay=25,
+                obsidian=7,
+                geode=2,
+            ),
+        ],
+        [
+            21,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=2,
+                ore=3,
+                clay=29,
+                obsidian=2,
+                geode=3,
+            ),
+        ],
+        [
+            22,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=2,
+                ore=4,
+                clay=33,
+                obsidian=4,
+                geode=5,
+            ),
+        ],
+        [
+            23,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=2,
+                ore=5,
+                clay=37,
+                obsidian=6,
+                geode=7,
+            ),
+        ],
+        [
+            24,
+            State(
+                ore_bot=1,
+                clay_bot=4,
+                obsidian_bot=2,
+                geode_bot=2,
+                ore=6,
+                clay=41,
+                obsidian=8,
+                geode=9,
+            ),
+        ],
     ]
     initial_state = State(ore_bot=1)
 
     for turn_count, expected_state in example_rundown:
-        actual = factory.run_n_turns(turn_count=turn_count, blueprint_num=1, initial_state=initial_state)
-        expected_state_capped = factory.cap_resource(blueprint_num=1, state=expected_state)
+        actual = factory.run_n_turns(
+            turn_count=turn_count, blueprint_num=1, initial_state=initial_state
+        )
+        expected_state_capped = factory.cap_resource(
+            blueprint_num=1, state=expected_state
+        )
         assert expected_state_capped in actual
-
-
 
 
 def test_run_n_turns_example_run_down_part_2(factory):
@@ -189,15 +271,43 @@ def test_run_n_turns_example_run_down_part_2(factory):
         [4, State(ore_bot=1, ore=4)],
         [6, State(ore_bot=2, ore=3)],
         [12, State(ore_bot=2, clay_bot=6, ore=3, clay=15)],
-        [20, State(ore_bot=2, clay_bot=7, obsidian_bot=4, geode_bot=1, ore=3, clay=14, obsidian=7)],
-        [30, State(ore_bot=2, clay_bot=7, obsidian_bot=5, geode_bot=8, ore=6, clay=70, obsidian=7, geode=39)],
+        [
+            20,
+            State(
+                ore_bot=2,
+                clay_bot=7,
+                obsidian_bot=4,
+                geode_bot=1,
+                ore=3,
+                clay=14,
+                obsidian=7,
+            ),
+        ],
+        [
+            30,
+            State(
+                ore_bot=2,
+                clay_bot=7,
+                obsidian_bot=5,
+                geode_bot=8,
+                ore=6,
+                clay=70,
+                obsidian=7,
+                geode=39,
+            ),
+        ],
     ]
     initial_state = State(ore_bot=1)
 
     for turn_count, expected_state in example_rundown:
-        actual = factory.run_n_turns(turn_count=turn_count, blueprint_num=1, initial_state=initial_state)
-        expected_state_capped = factory.cap_resource(blueprint_num=1, state=expected_state)
+        actual = factory.run_n_turns(
+            turn_count=turn_count, blueprint_num=1, initial_state=initial_state
+        )
+        expected_state_capped = factory.cap_resource(
+            blueprint_num=1, state=expected_state
+        )
         assert expected_state_capped in actual
+
 
 def test_best_geode_for_blueprint(factory):
     assert factory.best_geode_for_blueprint(blueprint_num=1) == 9
@@ -214,6 +324,7 @@ def test_part_one(factory):
 def test_best_geode_part_two(factory):
     assert factory.best_geode_for_blueprint(1, 32) == 56
     assert factory.best_geode_for_blueprint(2, 32) == 62
+
 
 def test_max_resource_use_per_day(factory):
     test_cases = [
@@ -238,12 +349,17 @@ def test_cap_resource(factory):
             State(geode=10, ore=99, clay=99, obsidian=99, ore_bot=3),
             State(geode=10, ore=6, clay=16, obsidian=24, ore_bot=3),
         ],
-        [1, State(ore_bot=1, ore=2, geode_bot=1, obsidian_bot=1), State(ore_bot=1, ore=2, geode_bot=1, obsidian_bot=1)],
+        [
+            1,
+            State(ore_bot=1, ore=2, geode_bot=1, obsidian_bot=1),
+            State(ore_bot=1, ore=2, geode_bot=1, obsidian_bot=1),
+        ],
     ]
 
     for blueprint_num, state, expected in test_cases:
         actual = factory.cap_resource(blueprint_num=blueprint_num, state=state)
         assert actual == expected
+
 
 def test_part_two(factory):
     expected = 62 * 56
