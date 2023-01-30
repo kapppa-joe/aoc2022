@@ -28,10 +28,10 @@ def interactive():
     arg = input()
             
     match arg:
-        case day if 1 <= int(day) <= 25:
-            fetch_day(int(day))
         case 'A':
             fetch_all()
+        case day if 1 <= int(day) <= 25:
+            fetch_day(int(day))
     
 
 
