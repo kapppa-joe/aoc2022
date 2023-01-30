@@ -1,12 +1,5 @@
-from solutions.day_09 import (
-    parse_raw,
-    trace_head_position,
-    is_touching,
-    new_tail_position,
-    part_one,
-    part_two,
-)
-
+from solutions.day_09 import (is_touching, new_tail_position, parse_raw,
+                              part_one, part_two, trace_head_position)
 
 example = """R 4
 U 4

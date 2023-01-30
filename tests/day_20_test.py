@@ -1,6 +1,6 @@
 import pytest
-from solutions.day_20 import parse_raw, part_one, part_two, PartTwoMagicNum
 
+from solutions.day_20 import PartTwoMagicNum, parse_raw, part_one, part_two
 
 example = """1
 2

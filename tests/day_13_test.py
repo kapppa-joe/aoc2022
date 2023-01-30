@@ -1,14 +1,8 @@
 import pytest
 
-from solutions.day_13 import (
-    parse_raw,
-    parse_packet_string,
-    compare_packets,
-    add_divider_packets,
-    sort_packet_strings,
-    part_one,
-    part_two,
-)
+from solutions.day_13 import (add_divider_packets, compare_packets,
+                              parse_packet_string, parse_raw, part_one,
+                              part_two, sort_packet_strings)
 
 example = """[1,1,3,1,1]
 [1,1,5,1,1]

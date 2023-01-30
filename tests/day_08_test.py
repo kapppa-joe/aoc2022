@@ -1,15 +1,9 @@
-import pytest
 import numpy as np
+import pytest
 
-from solutions.day_08 import (
-    parse_raw,
-    part_one,
-    part_two,
-    trees_in_four_directions,
-    visibility_from_four_directions,
-    is_visible,
-    count_trees_saw,
-)
+from solutions.day_08 import (count_trees_saw, is_visible, parse_raw, part_one,
+                              part_two, trees_in_four_directions,
+                              visibility_from_four_directions)
 
 example = """30373
 25512

@@ -1,6 +1,5 @@
 from solutions.day_05 import parse_raw, part_one, part_two, run_instruction
 
-
 example = """    [D]    
 [N] [C]    
 [Z] [M] [P]

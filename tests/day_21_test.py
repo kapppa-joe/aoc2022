@@ -1,14 +1,7 @@
 import pytest
-from solutions.day_21 import (
-    parse_raw,
-    part_one,
-    part_two,
-    Op,
-    ConstantNode,
-    OperationNode,
-    Node,
-)
 
+from solutions.day_21 import (ConstantNode, Node, Op, OperationNode, parse_raw,
+                              part_one, part_two)
 
 example = """root: pppw + sjmn
 dbpl: 5

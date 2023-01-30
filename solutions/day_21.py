@@ -1,7 +1,7 @@
+import functools
 import re
 from enum import Enum
 from fractions import Fraction
-import functools
 
 
 class Op(Enum):

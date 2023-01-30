@@ -1,13 +1,7 @@
 import pytest
 
-from solutions.day_12 import (
-    parse_raw,
-    reachable_neighbours,
-    part_one,
-    find_shortest_path_length,
-    part_two,
-)
-
+from solutions.day_12 import (find_shortest_path_length, parse_raw, part_one,
+                              part_two, reachable_neighbours)
 
 example = """Sabqponm
 abcryxxl

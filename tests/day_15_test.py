@@ -1,12 +1,6 @@
-from solutions.day_15 import (
-    parse_raw,
-    manhattan_distance,
-    sensor_x_coverage_at_given_y,
-    part_one,
-    detect_hole,
-    find_only_hole_on_map,
-    part_two,
-)
+from solutions.day_15 import (detect_hole, find_only_hole_on_map,
+                              manhattan_distance, parse_raw, part_one,
+                              part_two, sensor_x_coverage_at_given_y)
 
 example = """Sensor at x=2, y=18: closest beacon is at x=-2, y=15
 Sensor at x=9, y=16: closest beacon is at x=10, y=16

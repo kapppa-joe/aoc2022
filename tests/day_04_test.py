@@ -1,5 +1,4 @@
-from solutions.day_04 import parse_raw, part_one, part_two, find_overlap
-
+from solutions.day_04 import find_overlap, parse_raw, part_one, part_two
 
 example = """2-4,6-8
 2-3,4-5

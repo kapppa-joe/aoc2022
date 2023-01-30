@@ -1,10 +1,5 @@
-from solutions.day_02 import (
-    parse_raw,
-    win_lose_score,
-    part_one,
-    player_shape_score_part_two,
-    part_two,
-)
+from solutions.day_02 import (parse_raw, part_one, part_two,
+                              player_shape_score_part_two, win_lose_score)
 
 
 def test_parse_raw():

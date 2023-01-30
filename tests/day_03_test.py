@@ -1,12 +1,5 @@
-from solutions.day_03 import (
-    parse_raw,
-    find_repeat_item,
-    item_priority,
-    part_one,
-    part_two,
-    parse_raw_part_two,
-)
-
+from solutions.day_03 import (find_repeat_item, item_priority, parse_raw,
+                              parse_raw_part_two, part_one, part_two)
 
 example = """vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
