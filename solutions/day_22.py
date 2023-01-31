@@ -163,10 +163,9 @@ class MonkeyMapCube(MonkeyMap):
         Find those indirect connections and return as a dict"""
         new_connections = {}
 
-        for (face_a, a_to_b_direction), (
-            face_b,
-            b_to_a_direction,
-        ) in connections.items():
+        for key, value in connections.items():
+            (face_a, a_to_b_direction), (face_b, b_to_a_direction) = key, value
+
             a_b_direction_diff = (b_to_a_direction - a_to_b_direction) + 2
             # rotate +2 will be in opposite direction of a -> b, so only try +1 and +3
             for addition_rotation in (+1, +3):
@@ -236,13 +235,11 @@ class MonkeyMapCube(MonkeyMap):
         y1 = (y + dy) % self.map_height
 
         # handle special case if facing a void tile, or next tile is on another face
-        if self.get_tile(x=x1, y=y1) == Tile.Void or self.get_face_index(
-            x, y
-        ) != self.get_face_index(x1, y1):
+        # fmt: off
+        if (self.get_tile(x=x1, y=y1) == Tile.Void) or self.get_face_index(x, y) != self.get_face_index(x1, y1):
+        # fmt: on
             rel_x, rel_y = self.relative_position_on_face(x, y)
-            rel_x1, rel_y1 = (rel_x + dx) % self.side_width, (
-                rel_y + dy
-            ) % self.side_width
+            rel_x1, rel_y1 = (rel_x + dx) % self.side_width, (rel_y + dy) % self.side_width
 
             current_face = self.get_face_index(x, y)
             dest_face_index, dest_facing = self.get_neighbour_face(current_face, facing)
@@ -250,9 +247,7 @@ class MonkeyMapCube(MonkeyMap):
             for _ in range(rotation):
                 rel_x1, rel_y1 = (self.side_width - rel_y1 - 1, rel_x1)
 
-            x1, y1 = self.face_position_to_absolute_position(
-                dest_face_index, rel_x1, rel_y1
-            )
+            x1, y1 = self.face_position_to_absolute_position(dest_face_index, rel_x1, rel_y1)
             facing = facing.turn_clockwise(rotation)
 
         return (x1, y1, facing)
