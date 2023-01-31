@@ -1,5 +1,10 @@
-from solutions.day_10 import (parse_raw, part_one, part_two,
-                              pixel_onoff_at_cycle, x_values_for_all_cycles)
+from solutions.day_10 import (
+    parse_raw,
+    part_one,
+    part_two,
+    pixel_onoff_at_cycle,
+    x_values_for_all_cycles,
+)
 
 example_small = """noop
 addx 3

@@ -1,7 +1,16 @@
-from solutions.day_18 import (DisjointSets, all_cubes_in_space,
-                              all_touching_pairs, classify_cubes,
-                              find_boundries, find_surface_area, is_at_boundry,
-                              is_touching, parse_raw, part_one, part_two)
+from solutions.day_18 import (
+    DisjointSets,
+    all_cubes_in_space,
+    all_touching_pairs,
+    classify_cubes,
+    find_boundries,
+    find_surface_area,
+    is_at_boundry,
+    is_touching,
+    parse_raw,
+    part_one,
+    part_two,
+)
 
 example = """2,2,2
 1,2,2

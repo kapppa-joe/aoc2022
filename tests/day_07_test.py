@@ -1,5 +1,10 @@
-from solutions.day_07 import (Directory, list_directories_size, parse_raw,
-                              part_one, part_two)
+from solutions.day_07 import (
+    Directory,
+    list_directories_size,
+    parse_raw,
+    part_one,
+    part_two,
+)
 
 example = """$ cd /
 $ ls

@@ -1,8 +1,16 @@
 import pytest
 
-from solutions.day_14 import (SandSourceBlocked, all_points_in_line, drop_sand,
-                              drop_sand_part_two, keep_dropping_sand,
-                              parse_raw, part_one, part_two, visualize)
+from solutions.day_14 import (
+    SandSourceBlocked,
+    all_points_in_line,
+    drop_sand,
+    drop_sand_part_two,
+    keep_dropping_sand,
+    parse_raw,
+    part_one,
+    part_two,
+    visualize,
+)
 
 example = """498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9"""

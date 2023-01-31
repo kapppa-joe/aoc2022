@@ -1,8 +1,15 @@
 import numpy as np
 import pytest
 
-from solutions.day_17 import (Cave, Jet, Rock, RockComeToRest, parse_raw,
-                              part_one, part_two)
+from solutions.day_17 import (
+    Cave,
+    Jet,
+    Rock,
+    RockComeToRest,
+    parse_raw,
+    part_one,
+    part_two,
+)
 
 example = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 
