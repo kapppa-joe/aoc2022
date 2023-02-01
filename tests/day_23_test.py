@@ -1,16 +1,16 @@
 import pytest
 
 from solutions.day_23 import (
+    Coord,
+    Direction,
+    count_empty_ground,
+    neighbour_coords,
     parse_raw,
     part_one,
     part_two,
-    neighbour_coords,
-    Direction,
-    Coord,
     propose_move,
     resolve_next_turn,
-    count_empty_ground,
-    run_n_turns
+    run_n_turns,
 )
 
 example = """....#..
@@ -226,7 +226,6 @@ def test_resolve_next_turn__larger_example():
 ..............""",
     ]
 
-
     each_turn_as_data = [parse_raw(raw_str) for raw_str in each_turn_from_example]
 
     for turn_number, grove in enumerate(each_turn_as_data[:-1]):
@@ -234,19 +233,23 @@ def test_resolve_next_turn__larger_example():
         actual = resolve_next_turn(grove=grove, turn_number=turn_number)
 
         assert actual == expected
-        
+
+
 def test_count_empty_ground():
-    input_grove = parse_raw("""#..
+    input_grove = parse_raw(
+        """#..
 ...
-..#""")
+..#"""
+    )
     expected = 7
     actual = count_empty_ground(input_grove)
-    
+
     assert actual == expected
-    
-    
+
     # test for negative coords
-    input_grove = frozenset([Coord(-1, -3), Coord(0,-1), Coord(0, 0), Coord(3, 1), Coord(0, 10)])
+    input_grove = frozenset(
+        [Coord(-1, -3), Coord(0, -1), Coord(0, 0), Coord(3, 1), Coord(0, 10)]
+    )
     # x is -1 to 3, y is -3 to 10. thus total area is 5 * 14.
     expected = (5 * 14) - 5
     actual = count_empty_ground(input_grove)
@@ -254,7 +257,8 @@ def test_count_empty_ground():
 
 
 def test_run_n_turns():
-    initial_state = parse_raw("""..............
+    initial_state = parse_raw(
+        """..............
 ..............
 .......#......
 .....###.#....
@@ -265,10 +269,11 @@ def test_run_n_turns():
 ....#..#......
 ..............
 ..............
-..............""")
-    
-    
-    expected = parse_raw(""".......#......
+.............."""
+    )
+
+    expected = parse_raw(
+        """.......#......
 ...........#..
 ..#.#..#......
 ......#.......
@@ -279,21 +284,23 @@ def test_run_n_turns():
 ....#.#..#....
 ..............
 ....#..#..#...
-..............""")
+.............."""
+    )
 
-    actual = run_n_turns(grove=initial_state, n = 10)
+    actual = run_n_turns(grove=initial_state, n=10)
 
     assert actual == expected
+
 
 def test_part_one(grove):
     expected = 110
     actual = part_one(grove=grove)
-    
+
     assert actual == expected
-    
+
 
 def test_part_two(grove):
     expected = 20
     actual = part_two(grove=grove)
-    
+
     assert actual == expected

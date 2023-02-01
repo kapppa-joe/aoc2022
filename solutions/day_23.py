@@ -1,7 +1,7 @@
 import functools
-from typing import NamedTuple, TypeAlias
 from collections import Counter
 from enum import Enum
+from typing import NamedTuple, TypeAlias
 
 
 class Direction(tuple, Enum):
@@ -110,7 +110,8 @@ def resolve_next_turn(grove: Grove, turn_number: int) -> Grove:
 
     return convert_to_set
 
-def count_empty_ground(grove: Grove)-> int:
+
+def count_empty_ground(grove: Grove) -> int:
     all_elves = list(grove)
     min_x, min_y, max_x, max_y = [*all_elves[0], *all_elves[0]]
     for elf in all_elves[1:]:
@@ -122,11 +123,13 @@ def count_empty_ground(grove: Grove)-> int:
 
     return total_area - len(all_elves)
 
+
 def run_n_turns(grove: Grove, n: int) -> Grove:
     state = grove
     for i in range(n):
         state = resolve_next_turn(grove=state, turn_number=i)
     return state
+
 
 def parse_raw(raw: str) -> Grove:
     lines = raw.splitlines()
