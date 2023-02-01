@@ -27,8 +27,8 @@ class Direction(tuple, Enum):
     @functools.cached_property
     def succ(self):
         index = self.AllDirections.index(self.value)
-        prev_index = (index + 1 + len(AllDirections)) % len(AllDirections)
-        return AllDirections[prev_index]
+        succ_index = (index + 1 + len(AllDirections)) % len(AllDirections)
+        return AllDirections[succ_index]
 
     @functools.cached_property
     def with_two_adjs(self):
