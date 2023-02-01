@@ -66,15 +66,30 @@ class Tile(str, Enum):
     Empty = "."
 
 
-Grove: TypeAlias = frozenset[Coord]
+Elves: TypeAlias = frozenset[Coord]
+
+
+def parse_raw(raw: str) -> Elves:
+    lines = raw.splitlines()
+    width = len(lines[0])
+    height = len(lines)
+
+    elves_positions = (
+        Coord(x, y)
+        for y in range(height)
+        for x in range(width)
+        if lines[y][x] == Tile.Elf
+    )
+
+    return frozenset(elves_positions)
 
 
 def neighbour_coords(coord: Coord, directions: list[Direction]) -> list[Coord]:
     return [coord + dir for dir in directions]
 
 
-def propose_move(coord: Coord, grove: Grove, turn_number: int) -> Coord:
-    neighbour_elves = {dir for dir in AllDirections if (coord + dir) in grove}
+def propose_move(coord: Coord, elves: Elves, turn_number: int) -> Coord:
+    neighbour_elves = {dir for dir in AllDirections if (coord + dir) in elves}
     if not neighbour_elves:
         return coord
 
@@ -91,10 +106,10 @@ def propose_move(coord: Coord, grove: Grove, turn_number: int) -> Coord:
     return coord
 
 
-def resolve_next_turn(grove: Grove, turn_number: int) -> Grove:
-    all_elves = list(grove)
+def resolve_next_turn(elves: Elves, turn_number: int) -> Elves:
+    all_elves = list(elves)
     all_proposed_moves = {
-        elf: propose_move(coord=elf, grove=grove, turn_number=turn_number)
+        elf: propose_move(coord=elf, elves=elves, turn_number=turn_number)
         for elf in all_elves
     }
     counts = Counter(all_proposed_moves.values())
@@ -111,8 +126,8 @@ def resolve_next_turn(grove: Grove, turn_number: int) -> Grove:
     return convert_to_set
 
 
-def count_empty_ground(grove: Grove) -> int:
-    all_elves = list(grove)
+def count_empty_ground(elves: Elves) -> int:
+    all_elves = list(elves)
     min_x, min_y, max_x, max_y = [*all_elves[0], *all_elves[0]]
     for elf in all_elves[1:]:
         min_x = min(elf.x, min_x)
@@ -124,40 +139,25 @@ def count_empty_ground(grove: Grove) -> int:
     return total_area - len(all_elves)
 
 
-def run_n_turns(grove: Grove, n: int) -> Grove:
-    state = grove
+def run_n_turns(elves: Elves, n: int) -> Elves:
+    state = elves
     for i in range(n):
-        state = resolve_next_turn(grove=state, turn_number=i)
+        state = resolve_next_turn(elves=state, turn_number=i)
     return state
 
 
-def parse_raw(raw: str) -> Grove:
-    lines = raw.splitlines()
-    width = len(lines[0])
-    height = len(lines)
-
-    elves_positions = (
-        Coord(x, y)
-        for y in range(height)
-        for x in range(width)
-        if lines[y][x] == Tile.Elf
-    )
-
-    return frozenset(elves_positions)
-
-
-def part_one(grove: Grove) -> int:
-    final_state = run_n_turns(grove, 10)
+def part_one(elves: Elves) -> int:
+    final_state = run_n_turns(elves, 10)
     return count_empty_ground(final_state)
 
 
-def part_two(grove: Grove) -> int:
+def part_two(elves: Elves) -> int:
     prev_state = None
-    curr_state = grove
+    curr_state = elves
     i = 0
     while prev_state != curr_state:
         prev_state = curr_state
-        curr_state = resolve_next_turn(grove=curr_state, turn_number=i)
+        curr_state = resolve_next_turn(elves=curr_state, turn_number=i)
         i += 1
     return i
 
