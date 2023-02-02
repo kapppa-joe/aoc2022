@@ -32,22 +32,22 @@ examples = {
     37: "122",
 }
 
+
 def test_SNAFU_to_int():
-    
+
     for dec_number, snafu_number in examples.items():
         actual = SNAFU.to_int(snafu_number)
         expected = dec_number
-        
+
         assert actual == expected
 
 
-
 def test_int_to_SANFU():
-    
+
     for dec_number, snafu_number in examples.items():
         actual = SNAFU.from_int(dec_number)
         expected = snafu_number
-        
+
         assert actual == expected
 
 
@@ -66,8 +66,8 @@ def test_part_one():
 1=
 122"""
     snafu_number_list = parse_raw(example)
-    
-    expected = '2=-1=0'
+
+    expected = "2=-1=0"
     actual = part_one(snafu_number_list)
-    
+
     assert actual == expected
